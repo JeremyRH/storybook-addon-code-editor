@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "isolatedModules": false,
+    // "module": "AMD" produces a single .d.ts file for the whole library.
+    "module": "AMD",
+    "moduleResolution": "Node",
+    "outFile": "dist/types"
+  },
+  "include": ["src"],
+  "exclude": [
+    "src/**/stories",
+    "src/**/*.stories.*",
+    "src/**/*.source.*",
+    "src/**/tests",
+    "src/**/*.test.*"
+  ]
+}

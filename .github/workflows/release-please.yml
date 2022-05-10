@@ -1,0 +1,48 @@
+on:
+  push:
+    branches:
+      - main
+
+name: release-please
+
+jobs:
+  release-please:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+
+      - uses: actions/checkout@v3
+        with:
+          # Need at least two commits in history to amend the latest without orphaning the branch.
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test
+
+      - name: Update docs
+        run: |
+          npm run format
+          npm run docs
+
+          # Configure commit to come from user who triggered the workflow.
+          git config user.name $GITHUB_ACTOR
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git add docs
+          git commit --amend --no-edit
+          git push origin HEAD --force-with-lease
+        if: ${{ steps.release.outputs.pr }}
+
+      - run: |
+          npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
+          npm publish --access public
+        if: ${{ steps.release.outputs.release_created }}

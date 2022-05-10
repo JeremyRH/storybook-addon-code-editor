@@ -1,0 +1,12 @@
+.button-nice {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-family: sans-serif;
+  padding: 10px 15px;
+}
+
+.button-nice:focus {
+  outline: #015ecc auto 1px;
+}

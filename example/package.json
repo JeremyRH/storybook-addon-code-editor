@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "name": "example-library",
+  "version": "0.0.0",
+  "scripts": {
+    "build-storybook": "tsc -p tsconfig.build.json && build-storybook -o ../docs",
+    "storybook": "tsc -p tsconfig.build.json && start-storybook -p 6006 --no-manager-cache"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-docs": "^6.5.16",
+    "@storybook/addon-essentials": "^6.5.16",
+    "@storybook/builder-webpack5": "^6.5.16",
+    "@storybook/manager-webpack5": "^6.5.16",
+    "@storybook/react": "^6.5.16",
+    "@types/react": "^17.0.39",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "storybook-addon-code-editor": "file:../",
+    "typescript": "^4.9.5"
+  },
+  "overrides": {
+    "webpack": "^5.75.0"
+  }
+}
