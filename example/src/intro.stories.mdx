@@ -1,0 +1,34 @@
+import { Meta } from '@storybook/addon-docs';
+import { Playground } from 'storybook-addon-code-editor';
+import * as ExampleLibrary from './index';
+import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx';
+
+<Meta
+  title="Code Editor"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: { canvas: { hidden: true } },
+  }}
+/>
+
+# storybook-addon-code-editor
+
+`storybook-addon-code-editor` is a Storybook addon to view and live edit code examples.
+
+## Installation
+
+```sh
+npm install --save-dev storybook-addon-code-editor
+```
+
+## Simple example
+
+<Playground initialCode="export default () => <h1>H1</h1>;" />
+
+## Complex example
+
+<Playground
+  availableImports={{ 'example-library': ExampleLibrary }}
+  initialCode={PlaygroundExampleCode}
+  height="400px"
+/>

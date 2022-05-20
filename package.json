@@ -1,0 +1,45 @@
+{
+  "name": "storybook-addon-code-editor",
+  "version": "0.1.0",
+  "description": "A Storybook add-on for live editing stories.",
+  "repository": "https://github.com/JeremyRH/storybook-addon-code-editor.git",
+  "author": "JeremyRH <holcomb227@gmail.com>",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "register.js"
+  ],
+  "main": "dist/cjs/index.js",
+  "module": "dist/es/index.js",
+  "types": "dist/es/index.d.ts",
+  "scripts": {
+    "build": "tsc --outDir dist/es --module esnext && tsc --outDir dist/cjs --module commonjs",
+    "docs": "cd example && npm ci && npm run build-storybook",
+    "format": "prettier src --write",
+    "test": "jest src"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.0",
+    "@babel/preset-env": "^7.18.0",
+    "@babel/preset-react": "^7.17.12",
+    "@babel/preset-typescript": "^7.17.12",
+    "@testing-library/react": "^13.2.0",
+    "@types/jest": "^27.5.1",
+    "@types/react": "^18.0.9",
+    "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.0",
+    "prettier": "^2.6.2",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "@babel/standalone": "7",
+    "@storybook/addons": "6",
+    "@storybook/channels": "6",
+    "@storybook/components": "6",
+    "@types/react": "16.9^ || 17 || 18",
+    "react": "16.9^ || 17 || 18",
+    "react-dom": "16.9^ || 17 || 18"
+  }
+}
