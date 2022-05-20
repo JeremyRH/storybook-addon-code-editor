@@ -2,7 +2,7 @@
 
 A Storybook add-on for live editing stories. Supports JavaScript and TypeScript.
 
-[Demo](https://example.com)
+[Demo](https://jeremyrh.github.io/storybook-addon-code-editor)
 
 ## Install
 
