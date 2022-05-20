@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook -o ../docs"
   },
   "dependencies": {
     "react": "^16.9 || 17 || 18"
