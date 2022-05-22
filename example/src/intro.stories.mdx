@@ -2,9 +2,10 @@ import { Meta } from '@storybook/addon-docs';
 import { Playground } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from './index';
 import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx';
+import './playgroundExample.css';
 
 <Meta
-  title="Code Editor"
+  title="Code Playground"
   parameters={{
     viewMode: 'docs',
     previewTabs: { canvas: { hidden: true } },
@@ -15,20 +16,78 @@ import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx';
 
 `storybook-addon-code-editor` is a Storybook addon to view and live edit code examples.
 
-## Installation
+<p>
+  <a href="https://github.com/JeremyRH/storybook-addon-code-editor" target="_blank">
+    View on GitHub
+  </a>
+</p>
+
+## Get started
+
+Install as a dev dependency.
 
 ```sh
 npm install --save-dev storybook-addon-code-editor
 ```
 
-## Simple example
+Add `storybook-addon-code-editor` in your `.storybook/main.js` file:
 
-<Playground initialCode="export default () => <h1>H1</h1>;" />
+```js
+module.exports = {
+  addons: [
+    'storybook-addon-code-editor',
+    ...
+```
 
-## Complex example
+<p>
+  See{' '}
+  <a
+    href="https://github.com/JeremyRH/storybook-addon-code-editor/tree/main/example"
+    target="_blank"
+  >
+    /example
+  </a>{' '}
+  for usage.
+</p>
+
+## Showcase
+
+<Playground initialCode="export default () => <h1>Hello</h1>;" />
+
+MDX to create this playground:
+
+```jsx
+// simple.stories.mdx
+import { Playground } from 'storybook-addon-code-editor';
+
+<Playground initialCode="export default () => <h1>Hello</h1>;" />;
+```
 
 <Playground
-  availableImports={{ 'example-library': ExampleLibrary }}
+  availableImports={{
+    'example-library': ExampleLibrary,
+    './playgroundExample.css': {},
+  }}
   initialCode={PlaygroundExampleCode}
-  height="400px"
+  height="560px"
 />
+
+MDX to create this playground:
+
+```jsx
+// complex.stories.mdx
+import { Playground } from 'storybook-addon-code-editor';
+import * as ExampleLibrary from './index';
+import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx'; // Webpack
+import PlaygroundExampleCode from './playgroundExample.source.tsx?raw'; // Vite
+import './playgroundExample.css';
+
+<Playground
+  availableImports={{
+    'example-library': ExampleLibrary,
+    './playgroundExample.css': {},
+  }}
+  initialCode={PlaygroundExampleCode}
+  height="560px"
+/>;
+```

@@ -1,5 +1,6 @@
 import { useState, useCallback, ChangeEventHandler } from 'react';
 import { ButtonChangeColor } from 'example-library';
+import './playgroundExample.css';
 
 function capitalize(input: string) {
   let result = input.trimStart();
@@ -15,8 +16,15 @@ export default () => {
 
   return (
     <>
-      <input value={value} onInput={onInput} />
-      <ButtonChangeColor onClick={() => alert(value)}>{value}</ButtonChangeColor>
+      <input
+        value={value}
+        onInput={onInput}
+        className="input-nice"
+        style={{ marginRight: '10px' }}
+      />
+      <ButtonChangeColor onClick={() => alert(value)} className="button-nice">
+        {value}
+      </ButtonChangeColor>
     </>
   );
 };

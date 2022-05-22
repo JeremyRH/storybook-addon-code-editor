@@ -3,7 +3,7 @@ import { ButtonChangeColor } from '../../index';
 import ButtonChangeColorSource from '!!raw-loader!./editableStory.source';
 
 export default {
-  title: 'Components/ButtonChangeColor',
+  title: 'Stories/Example',
   component: ButtonChangeColor,
 };
 
@@ -18,6 +18,7 @@ NonEditableStory.args = {
   initialColor: 'lightblue',
   skipTwo: true,
 };
+
 NonEditableStory.parameters = {
   liveCodeEditor: { disable: true },
 };

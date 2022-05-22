@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const colors = ['yellow', 'lightgray', 'lightgreen', 'lightblue'];
+const colors = ['yellow', 'orange', 'blue', 'purple'];
 
 function getNextColor(currentColor) {
   const nextIndex = (colors.indexOf(currentColor) + 1) % colors.length;
@@ -31,7 +31,9 @@ const ButtonChangeColor = ({ initialColor = 'yellow', skipTwo = false, ...props 
         props.onClick?.();
       }}
     >
-      {props.children} {color}
+      <span style={{ color, filter: 'invert(1) grayscale(1) contrast(100)' }}>
+        {props.children} {color}
+      </span>
     </button>
   );
 };

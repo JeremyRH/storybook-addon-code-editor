@@ -4,15 +4,15 @@ A Storybook add-on for live editing stories. Supports JavaScript and TypeScript.
 
 [Demo](https://jeremyrh.github.io/storybook-addon-code-editor)
 
-## Install
+[Usage example](./example)
+
+## Get started
 
 Install as a dev dependency.
 
 ```sh
 npm install --save-dev storybook-addon-code-editor
 ```
-
-## Use
 
 Add `storybook-addon-code-editor` in your `.storybook/main.js` file:
 
@@ -43,7 +43,7 @@ import { Playground } from 'storybook-addon-code-editor';
 import * as MyLib from './index';
 
 import storyCode from '!!raw-loader!./MyStory.source.tsx'; // Webpack
-import storyCode from './MyStory.source.tsx?raw';          // Vite
+import storyCode from './MyStory.source.tsx?raw'; // Vite
 
 <Playground
   availableImports={{ 'my-lib': MyLib }}
@@ -79,7 +79,7 @@ import { createLiveEditStory } from 'storybook-addon-code-editor';
 import * as MyLib from './index';
 
 import storyCode from '!!raw-loader!./MyStory.source.tsx'; // Webpack
-import storyCode from './MyStory.source.tsx?raw';          // Vite
+import storyCode from './MyStory.source.tsx?raw'; // Vite
 
 export const MyStory = createLiveEditStory({
   availableImports: { 'my-lib': MyLib },
@@ -103,30 +103,37 @@ interface Options {
 ## Contributing
 
 ### Install dependencies
+
 ```sh
 npm i
 ```
 
 ### Run Build
+
 ```sh
 npm run build
 ```
 
 ### Run Tests
+
 ```sh
 npm run test
 ```
 
 ### Run Formatter
+
 ```sh
 npm run format
 ```
 
 ### Commits
+
 Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) to allow automatic versioned releases.
+
 - `fix:` represents bug fixes, and correlates to a SemVer patch.
 - `feat:` represents a new feature, and correlates to a SemVer minor.
 - `feat!:`, or `fix!:`, `refactor!:`, etc., represent a breaking change (indicated by the !) and will result in a SemVer major.
 
 ### Publishing
+
 The automated [release-please](https://github.com/googleapis/release-please) PR to the main branch can be merged to deploy a release.
