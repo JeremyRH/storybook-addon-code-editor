@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react';
+import * as React from 'react';
 import { loadMonacoEditor } from './loadMonacoEditor';
+import type * as Monaco from './monacoEditorApi';
 
-export const createEditorP = loadMonacoEditor().then((monaco: any) => {
+const monacoP = loadMonacoEditor().then((monaco) => {
   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-    jsx: 2,
+    jsx: 1,
   });
 
   monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
@@ -13,60 +14,83 @@ export const createEditorP = loadMonacoEditor().then((monaco: any) => {
 
   let fileCount = 1;
 
-  return (initialCode: string, container: HTMLElement) => {
-    const uri = monaco.Uri.parse(`file:///index${fileCount++}.tsx`);
-    return monaco.editor.create(container, {
-      model: monaco.editor.createModel(initialCode, 'typescript', uri),
-      tabSize: 2,
-      automaticLayout: true,
-    });
-  };
+  return [
+    monaco,
+    (code: string, container: HTMLElement) => {
+      const uri = monaco.Uri.parse(`file:///index${fileCount++}.tsx`);
+
+      return monaco.editor.create(container, {
+        model: monaco.editor.createModel(code, 'typescript', uri),
+        tabSize: 2,
+        automaticLayout: true,
+      });
+    },
+  ] as const;
 });
+
+function useResolved<T>(promise: Promise<T>) {
+  const [resolvedValue, setResolvedValue] = React.useState<T>();
+
+  React.useEffect(() => {
+    let didCleanup = false;
+
+    promise.then((value) => {
+      if (!didCleanup) {
+        setResolvedValue(() => value);
+      }
+    });
+
+    return () => {
+      didCleanup = true;
+    };
+  }, []);
+
+  return resolvedValue;
+}
 
 interface EditorProps {
   onInput: (value: string) => any;
   value: string;
+  onCreateEditor?: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco) => any;
 }
 
-export default function Editor({ onInput, value }: EditorProps) {
-  const editorContainerRef = useRef(null);
-  const editorRef = useRef();
-  const onInputRef = useRef(onInput);
+export default function Editor(props: EditorProps) {
+  const editorContainerRef = React.useRef(null);
+  const editorRef = React.useRef<Monaco.editor.IStandaloneCodeEditor>();
+  const propsRef = React.useRef(props);
+  const [monaco, createEditor] = useResolved(monacoP) || [];
 
-  if (onInputRef.current !== onInput) {
-    onInputRef.current = onInput;
-  }
+  React.useLayoutEffect(() => {
+    propsRef.current = props;
+  });
 
-  useEffect(() => {
-    let didCleanup = false;
-    let cleanup = () => {
-      didCleanup = true;
-    };
-    const setupEditor = (editor: any) => {
-      editor.setValue(value);
+  React.useEffect(() => {
+    if (createEditor) {
+      const editor = (editorRef.current = createEditor(
+        propsRef.current.value,
+        editorContainerRef.current!
+      ));
       const subscription = editor.onDidChangeModelContent(() => {
-        onInputRef.current(editor.getValue());
+        propsRef.current.onInput(editor.getValue());
       });
-      cleanup = () => {
+
+      return () => {
         subscription.dispose();
       };
-    };
-
-    if (editorRef.current) {
-      setupEditor(editorRef.current);
-    } else {
-      createEditorP.then((createEditor) => {
-        if (!didCleanup) {
-          if (!editorRef.current) {
-            editorRef.current = createEditor(value, editorContainerRef.current!);
-          }
-          setupEditor(editorRef.current);
-        }
-      });
     }
+  }, [createEditor]);
 
-    return () => cleanup();
-  }, [value]);
+  React.useEffect(() => {
+    if (monaco && editorRef.current && props.onCreateEditor) {
+      props.onCreateEditor(editorRef.current, monaco);
+    }
+  }, [monaco, props.onCreateEditor]);
+
+  React.useEffect(() => {
+    if (editorRef.current && editorRef.current.getValue() !== props.value) {
+      editorRef.current.setValue(props.value);
+    }
+  }, [props.value]);
 
   return <div ref={editorContainerRef} style={{ height: '100%' }} />;
 }

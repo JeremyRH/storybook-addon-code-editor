@@ -1,6 +1,8 @@
 import { Meta } from '@storybook/addon-docs';
 import { Playground } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from './index';
+import ReactTypes from '!!raw-loader!@types/react/index.d.ts';
+import ExampleLibraryTypes from '!!raw-loader!../dist/types.d.ts';
 import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx';
 import './playgroundExample.css';
 
@@ -52,42 +54,85 @@ module.exports = {
 
 ## Showcase
 
-<Playground initialCode="export default () => <h1>Hello</h1>;" />
-
-MDX to create this playground:
-
-```jsx
-// simple.stories.mdx
+<>
+  {(() => {
+    const code = 'export default () => <h1>Simple example</h1>;';
+    return (
+      <Playground
+        code={`
+/* MDX:
 import { Playground } from 'storybook-addon-code-editor';
+<Playground code="${code}" />
+*/\n
+${code}
+    `.trim()}
+      />
+    );
+  })()}
+</>
 
-<Playground initialCode="export default () => <h1>Hello</h1>;" />;
-```
+---
 
-<Playground
-  availableImports={{
-    'example-library': ExampleLibrary,
-    './playgroundExample.css': {},
-  }}
-  initialCode={PlaygroundExampleCode}
-  height="560px"
-/>
-
-MDX to create this playground:
-
-```jsx
-// complex.stories.mdx
+<>
+  {(() => {
+    const code = `
+/* MDX:
 import { Playground } from 'storybook-addon-code-editor';
-import * as ExampleLibrary from './index';
+import ReactTypes from '!!raw-loader!@types/react/index.d.ts'; // Webpack
+import ExampleLibraryTypes from '!!raw-loader!../dist/types.d.ts'; // Webpack
 import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx'; // Webpack
-import PlaygroundExampleCode from './playgroundExample.source.tsx?raw'; // Vite
-import './playgroundExample.css';
-
+import './playgroundExample.css';\n
 <Playground
+  code={PlaygroundExampleCode}
   availableImports={{
     'example-library': ExampleLibrary,
     './playgroundExample.css': {},
   }}
-  initialCode={PlaygroundExampleCode}
   height="560px"
-/>;
+  onCreateEditor={(editor, monaco) => {
+    editor.getModel().updateOptions({ tabSize: 2 });
+    monaco.editor.setTheme('vs-dark');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      ReactTypes,
+      'file:///node_modules/react/index.d.ts'
+    );
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      ExampleLibraryTypes,
+      'file:///node_modules/example-library/index.d.ts'
+    );
+  }}
+/>
+*/\n
+${PlaygroundExampleCode}
+  `.trim();
+    return (
+      <Playground
+        code={code}
+        availableImports={{
+          'example-library': ExampleLibrary,
+          './playgroundExample.css': {},
+        }}
+        height="560px"
+        onCreateEditor={(editor, monaco) => {
+          editor.getModel().updateOptions({ tabSize: 2 });
+          monaco.editor.setTheme('vs-dark');
+          monaco.languages.typescript.typescriptDefaults.addExtraLib(
+            ReactTypes,
+            'file:///node_modules/react/index.d.ts'
+          );
+          monaco.languages.typescript.typescriptDefaults.addExtraLib(
+            ExampleLibraryTypes,
+            'file:///node_modules/example-library/index.d.ts'
+          );
+        }}
+      />
+    );
+  })()}
+</>
+
+Getting file contents as strings is different between Webpack and Vite:
+
+```js
+import ReactTypes from '!!raw-loader!@types/react/index.d.ts'; // Webpack
+import ReactTypes from '@types/react/index.d.ts?raw'; // Vite
 ```

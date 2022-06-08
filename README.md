@@ -31,7 +31,7 @@ Use the `Playground` component in [MDX format](https://storybook.js.org/docs/rea
 // MyComponent.stories.mdx
 import { Playground } from 'storybook-addon-code-editor';
 
-<Playground initialCode="export default () => <h1>H1</h1>;"} />
+<Playground code="export default () => <h1>H1</h1>;"} />
 ```
 
 More advanced example:
@@ -47,8 +47,18 @@ import storyCode from './MyStory.source.tsx?raw'; // Vite
 
 <Playground
   availableImports={{ 'my-lib': MyLib }}
-  initialCode={storyCode}
-  height="500px"
+  code={storyCode}
+  height="560px"
+  onCreateEditor={(editor, monaco) => {
+    // editor docs: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html
+    // monaco docs: https://microsoft.github.io/monaco-editor/api/modules/monaco.html
+
+    // Set tab size.
+    editor.getModel().updateOptions({ tabSize: 4 });
+
+    // Set global theme. Applies to all editors on page.
+    monaco.editor.setTheme('vs-dark');
+  }}
 />
 ```
 
@@ -56,12 +66,13 @@ import storyCode from './MyStory.source.tsx?raw'; // Vite
 
 ```ts
 interface PlaygroundProps {
+  code?: string;
   availableImports?: {
     [importSpecifier: string]: {
       [namedImport: string]: any;
     };
   };
-  initialCode?: string;
+  onCreateEditor?: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: Monaco) => any;
   height?: string;
 }
 ```
@@ -83,7 +94,7 @@ import storyCode from './MyStory.source.tsx?raw'; // Vite
 
 export const MyStory = createLiveEditStory({
   availableImports: { 'my-lib': MyLib },
-  initialCode: storyCode,
+  code: storyCode,
 });
 ```
 
@@ -91,12 +102,13 @@ export const MyStory = createLiveEditStory({
 
 ```ts
 interface Options {
+  code: string;
   availableImports?: {
     [importSpecifier: string]: {
       [namedImport: string]: any;
     };
   };
-  initialCode?: string;
+  onCreateEditor?: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: Monaco) => any;
 }
 ```
 

@@ -1,50 +1,52 @@
-import type { Channel } from '@storybook/channels';
+type Callback<T> = (newValue: T) => any;
 
-const eventCodeChange = 'liveCodeEditor:codeChange';
-const eventStoryChange = 'liveCodeEditor:storyChange';
+interface Store<T> {
+  onChange(callback: Callback<T>): () => void;
+  getValue(): T | undefined;
+  setValue(newValue: T): void;
+}
 
-export function createStore(channel: Channel) {
-  let currentStoryId = '';
-  const currentCodes = new Map<string, string>();
-
-  channel.on(eventCodeChange, ([id, currentCode]: readonly [string, string]) => {
-    currentCodes.set(id, currentCode);
-  });
-
-  channel.on(eventStoryChange, ([id, initialCode]: readonly [string, string]) => {
-    if (!currentCodes.has(id)) {
-      currentCodes.set(id, initialCode);
-    }
-    if (currentStoryId !== id) {
-      currentStoryId = id;
-      channel.emit(eventCodeChange, [id, currentCodes.get(id)]);
-    }
-  });
-
-  const setCurrentStory = (id: string, initialCode: string) =>
-    channel.emit(eventStoryChange, [id, initialCode]);
-
-  const setCurrentStoryCode = (code: string) =>
-    channel.emit(eventCodeChange, [currentStoryId, code]);
-
-  const getCurrentStoryCode = () => currentCodes.get(currentStoryId) ?? '';
-
-  const onCodeChange = (callback: (newCode: string) => any) => {
-    const handler = ([, currentCode]: readonly [string, string]) => {
-      callback(currentCode);
-    };
-
-    channel.on(eventCodeChange, handler);
-
-    return () => {
-      channel.off(eventCodeChange, handler);
-    };
-  };
+function newStore<T>(initialValue?: T): Store<T> {
+  const callbacks = new Set<Callback<T>>();
+  let value = initialValue;
 
   return {
-    setCurrentStory,
-    setCurrentStoryCode,
-    getCurrentStoryCode,
-    onCodeChange,
+    onChange(callback) {
+      callbacks.add(callback);
+      return () => {
+        callbacks.delete(callback);
+      };
+    },
+    getValue: () => value,
+    setValue(newValue) {
+      value = newValue;
+      callbacks.forEach((callback) => {
+        try {
+          callback(newValue);
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    },
   };
+}
+
+interface KeyStore<T> {
+  onChange(key: string, callback: Callback<T>): () => void;
+  getValue(key: string): T | undefined;
+  setValue(key: string, newValue: T): void;
+}
+
+function newKeyStore<T>(): KeyStore<T> {
+  const stores: Record<string, Store<T>> = {};
+
+  return {
+    onChange: (key, callback) => (stores[key] ||= newStore()).onChange(callback),
+    getValue: (key) => (stores[key] ||= newStore()).getValue(),
+    setValue: (key, newValue) => (stores[key] ||= newStore()).setValue(newValue),
+  };
+}
+
+export function createStore<T>(global: any): KeyStore<T> {
+  return (global._addon_code_editor_store ||= newKeyStore());
 }

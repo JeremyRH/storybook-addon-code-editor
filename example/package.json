@@ -3,8 +3,8 @@
   "name": "example-library",
   "version": "0.0.0",
   "scripts": {
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook -o ../docs"
+    "build-storybook": "tsc -p tsconfig.build.json && build-storybook -o ../docs",
+    "storybook": "start-storybook -p 6006"
   },
   "dependencies": {
     "react": "^16.9 || 17 || 18"
@@ -13,8 +13,10 @@
     "@storybook/addon-docs": "^6.5.3",
     "@storybook/addon-essentials": "^6.5.3",
     "@storybook/react": "^6.5.3",
+    "@types/react": "^17.0.45",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "storybook-addon-code-editor": "file:../"
+    "storybook-addon-code-editor": "file:../",
+    "typescript": "^4.7.3"
   }
 }

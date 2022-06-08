@@ -1,55 +1,51 @@
+import type { Story } from '@storybook/api';
 import * as React from 'react';
-import { addons } from '@storybook/addons';
-import { Story } from '@storybook/api';
 import Editor from './Editor';
 import ErrorBoundary from './ErrorBoundary';
 import { createStore } from './createStore';
 import Preview from './Preview';
 
-type AvailableImports = Record<string, Record<string, unknown>>;
-
-const { getCurrentStoryCode, onCodeChange } = createStore(addons.getChannel());
-const defaultImports: AvailableImports = { react: React };
-const hasReactRegex = /import +(\* +as +)?React +from +['"]react['"]/;
-
-interface LivePreviewProps {
-  availableImports?: AvailableImports;
+interface StoryState {
+  code: string;
+  availableImports?: Record<string, Record<string, unknown>>;
+  onCreateEditor?: React.ComponentProps<typeof Editor>['onCreateEditor'];
 }
 
-export function LivePreview({ availableImports }: LivePreviewProps) {
-  const [code, setCode] = React.useState(getCurrentStoryCode);
-  const errorBoundaryResetRef = React.useRef<() => void>();
-  const allImports = { ...defaultImports, ...availableImports };
-  const fullCode = hasReactRegex.test(code) ? code : "import * as React from 'react';\n" + code;
+const store = createStore<StoryState>(window.parent);
+const hasReactRegex = /import +(\* +as +)?React +from +['"]react['"]/;
 
-  React.useEffect(
-    () =>
-      onCodeChange((newCode) => {
-        setCode(newCode);
-        errorBoundaryResetRef.current?.();
-      }),
-    []
-  );
+function LivePreview({ storyId }: { storyId: string }) {
+  const [state, setState] = React.useState(store.getValue(storyId));
+  const errorBoundaryResetRef = React.useRef<() => void>();
+  const fullCode = hasReactRegex.test(state!.code)
+    ? state!.code
+    : "import * as React from 'react';\n" + state!.code;
+
+  React.useEffect(() => {
+    return store.onChange(storyId, (newState) => {
+      setState(newState);
+      errorBoundaryResetRef.current?.();
+    });
+  }, [storyId]);
 
   return (
     <ErrorBoundary resetRef={errorBoundaryResetRef}>
-      <Preview availableImports={allImports} code={fullCode} />
+      <Preview availableImports={{ react: React, ...state!.availableImports }} code={fullCode} />
     </ErrorBoundary>
   );
 }
 
-interface Options {
-  availableImports?: AvailableImports;
-  initialCode?: string;
-}
+export function createLiveEditStory(options: StoryState) {
+  const id = 'addon_code_editor_story_id' + Math.random();
 
-export function createLiveEditStory(opts: Options = {}) {
-  const story = () => <LivePreview availableImports={opts.availableImports} />;
+  store.setValue(id, options);
+
+  const story = () => <LivePreview storyId={id} />;
 
   story.parameters = {
     liveCodeEditor: {
       disable: false,
-      initialCode: opts.initialCode || '',
+      id,
     },
     previewTabs: {
       'storybook/docs/panel': {
@@ -65,19 +61,21 @@ export function createLiveEditStory(opts: Options = {}) {
 
 export function Playground({
   availableImports,
-  initialCode = '',
+  code = '',
+  onCreateEditor,
   height = '200px',
-}: Options & { height?: string }) {
-  const [code, setCode] = React.useState(initialCode);
+}: Partial<StoryState> & { height?: string }) {
+  const [currentCode, setCurrentCode] = React.useState(code);
   const errorBoundaryResetRef = React.useRef<() => void>();
-  const allImports = { ...defaultImports, ...availableImports };
-  const fullCode = hasReactRegex.test(code) ? code : "import * as React from 'react';\n" + code;
+  const fullCode = hasReactRegex.test(currentCode)
+    ? currentCode
+    : "import * as React from 'react';\n" + currentCode;
 
   return (
     <div style={{ border: '1px solid #bebebe' }}>
       <div style={{ margin: '16px 16px 0 16px', overflow: 'auto', paddingBottom: '16px' }}>
         <ErrorBoundary resetRef={errorBoundaryResetRef}>
-          <Preview availableImports={allImports} code={fullCode} />
+          <Preview availableImports={{ react: React, ...availableImports }} code={fullCode} />
         </ErrorBoundary>
       </div>
       <div
@@ -90,10 +88,11 @@ export function Playground({
       >
         <Editor
           onInput={(newCode) => {
-            setCode(newCode);
+            setCurrentCode(newCode);
             errorBoundaryResetRef.current?.();
           }}
-          value={initialCode}
+          value={currentCode}
+          onCreateEditor={onCreateEditor}
         />
       </div>
     </div>

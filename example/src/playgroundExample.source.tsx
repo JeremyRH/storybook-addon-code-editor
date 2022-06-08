@@ -16,6 +16,7 @@ export default () => {
 
   return (
     <>
+      <h1>Complex example</h1>
       <input
         value={value}
         onInput={onInput}
