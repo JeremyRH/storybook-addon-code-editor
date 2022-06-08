@@ -27,7 +27,7 @@ module.exports = {
 
 Use the `Playground` component in [MDX format](https://storybook.js.org/docs/react/api/mdx).
 
-```md
+```jsx
 // MyComponent.stories.mdx
 import { Playground } from 'storybook-addon-code-editor';
 
@@ -36,14 +36,16 @@ import { Playground } from 'storybook-addon-code-editor';
 
 More advanced example:
 
-```md
+```jsx
 // MyComponent.stories.mdx
 import { Playground } from 'storybook-addon-code-editor';
 
 import * as MyLib from './index';
 
-import storyCode from '!!raw-loader!./MyStory.source.tsx'; // Webpack
-import storyCode from './MyStory.source.tsx?raw'; // Vite
+// !!raw-loader!{import} for Webpack, {import}?raw for Vite.
+import storyCode from '!!raw-loader!./MyStory.source.tsx';
+import ReactTypes from '!!raw-loader!@types/react/index.d.ts';
+import ExampleLibraryTypes from '!!raw-loader!../dist/types.d.ts';
 
 <Playground
   availableImports={{ 'my-lib': MyLib }}
@@ -52,12 +54,16 @@ import storyCode from './MyStory.source.tsx?raw'; // Vite
   onCreateEditor={(editor, monaco) => {
     // editor docs: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html
     // monaco docs: https://microsoft.github.io/monaco-editor/api/modules/monaco.html
-
-    // Set tab size.
-    editor.getModel().updateOptions({ tabSize: 4 });
-
-    // Set global theme. Applies to all editors on page.
+    editor.getModel().updateOptions({ tabSize: 2 });
     monaco.editor.setTheme('vs-dark');
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      ReactTypes,
+      'file:///node_modules/react/index.d.ts'
+    );
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      ExampleLibraryTypes,
+      'file:///node_modules/example-library/index.d.ts'
+    );
   }}
 />
 ```
