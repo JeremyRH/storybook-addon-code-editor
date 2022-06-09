@@ -2,11 +2,59 @@ import * as React from 'react';
 import { loadMonacoEditor } from './loadMonacoEditor';
 import type * as Monaco from './monacoEditorApi';
 
+function fixHoverTooltipNotShowing(overflowContainer: HTMLElement) {
+  const monacoTargetAttribute = 'monaco-visible-content-widget';
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      const target = mutation.target as HTMLElement;
+
+      if (
+        target.nodeType === Node.ELEMENT_NODE &&
+        target.getAttribute(monacoTargetAttribute) === 'true'
+      ) {
+        const previousRect = target.getBoundingClientRect();
+
+        target.style.top = '-9999px';
+
+        requestAnimationFrame(() => {
+          const newRect = target.getBoundingClientRect();
+          const heightDif = newRect.height - previousRect.height;
+          target.style.top = `${previousRect.top - heightDif}px`;
+        });
+      }
+    }
+  });
+
+  observer.observe(overflowContainer, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: [monacoTargetAttribute],
+  });
+}
+
+function getMonacoOverflowContainer(id: string) {
+  let container = document.getElementById(id);
+
+  if (container) {
+    return container;
+  }
+
+  container = document.createElement('div');
+  container.id = id;
+  container.classList.add('monaco-editor');
+
+  fixHoverTooltipNotShowing(container);
+
+  document.body.appendChild(container);
+
+  return container;
+}
+
 const monacoP = loadMonacoEditor().then((monaco) => {
   monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
     jsx: 1,
   });
-
   monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
     noSemanticValidation: true,
     noSyntaxValidation: false,
@@ -20,9 +68,11 @@ const monacoP = loadMonacoEditor().then((monaco) => {
       const uri = monaco.Uri.parse(`file:///index${fileCount++}.tsx`);
 
       return monaco.editor.create(container, {
-        model: monaco.editor.createModel(code, 'typescript', uri),
-        tabSize: 2,
         automaticLayout: true,
+        fixedOverflowWidgets: true,
+        model: monaco.editor.createModel(code, 'typescript', uri),
+        overflowWidgetsDomNode: getMonacoOverflowContainer('monacoOverflowContainer'),
+        tabSize: 2,
       });
     },
   ] as const;
@@ -70,12 +120,14 @@ export default function Editor(props: EditorProps) {
         propsRef.current.value,
         editorContainerRef.current!
       ));
-      const subscription = editor.onDidChangeModelContent(() => {
+
+      editor.onDidChangeModelContent(() => {
         propsRef.current.onInput(editor.getValue());
       });
 
       return () => {
-        subscription.dispose();
+        editor.dispose();
+        editorRef.current = undefined;
       };
     }
   }, [createEditor]);
