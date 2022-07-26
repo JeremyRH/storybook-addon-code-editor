@@ -14,10 +14,10 @@ function injectScript(url: string) {
 }
 
 export function loadMonacoEditor(): Promise<typeof Monaco> {
-  return injectScript('/vs/loader.js').then(() => {
+  return injectScript('vs/loader.js').then(() => {
     return new Promise((resolve) => {
       window.require.config({
-        paths: { vs: '/vs' },
+        paths: { vs: 'vs' },
       });
       window.require(['vs/editor/editor.main'], resolve);
     });
