@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { loadMonacoEditor } from './loadMonacoEditor';
-import type * as Monaco from './monacoEditorApi';
+import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 function fixHoverTooltipNotShowing(overflowContainer: HTMLElement) {
   const monacoTargetAttribute = 'monaco-visible-content-widget';
@@ -13,14 +13,27 @@ function fixHoverTooltipNotShowing(overflowContainer: HTMLElement) {
         target.nodeType === Node.ELEMENT_NODE &&
         target.getAttribute(monacoTargetAttribute) === 'true'
       ) {
+        const hoveredEls = document.querySelectorAll(':hover');
+        const hoveredRect = hoveredEls[hoveredEls.length - 1]?.getBoundingClientRect();
         const previousRect = target.getBoundingClientRect();
 
         target.style.top = '-9999px';
 
         requestAnimationFrame(() => {
           const newRect = target.getBoundingClientRect();
-          const heightDif = newRect.height - previousRect.height;
-          target.style.top = `${previousRect.top - heightDif}px`;
+
+          if (hoveredRect) {
+            if (hoveredRect.top < newRect.height) {
+              // Show tooltip below if no room above.
+              target.style.top = `${hoveredRect.bottom + 1}px`;
+            } else {
+              target.style.top = `${hoveredRect.top - newRect.height - 1}px`;
+            }
+          } else {
+            // Don't know the anchor postion, assume it's below.
+            const heightDif = newRect.height - previousRect.height;
+            target.style.top = `${previousRect.top - heightDif}px`;
+          }
         });
       }
     }

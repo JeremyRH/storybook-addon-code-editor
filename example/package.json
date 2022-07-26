@@ -4,19 +4,19 @@
   "version": "0.0.0",
   "scripts": {
     "build-storybook": "tsc -p tsconfig.build.json && build-storybook -o ../docs",
-    "storybook": "start-storybook -p 6006"
+    "storybook": "start-storybook -p 6006 --no-manager-cache"
   },
   "dependencies": {
     "react": "^16.9 || 17 || 18"
   },
   "devDependencies": {
-    "@storybook/addon-docs": "^6.5.3",
-    "@storybook/addon-essentials": "^6.5.3",
-    "@storybook/react": "^6.5.3",
+    "@storybook/addon-docs": "^6.5.9",
+    "@storybook/addon-essentials": "^6.5.9",
+    "@storybook/react": "^6.5.9",
     "@types/react": "^17.0.45",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "storybook-addon-code-editor": "file:../",
-    "typescript": "^4.7.3"
+    "typescript": "^4.7.4"
   }
 }

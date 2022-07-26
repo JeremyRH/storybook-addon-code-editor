@@ -1,5 +1,6 @@
 import type { Story } from '@storybook/api';
 import * as React from 'react';
+import { panelId } from './constants';
 import Editor from './Editor';
 import ErrorBoundary from './ErrorBoundary';
 import { createStore } from './createStore';
@@ -36,7 +37,7 @@ function LivePreview({ storyId }: { storyId: string }) {
 }
 
 export function createLiveEditStory(options: StoryState) {
-  const id = 'addon_code_editor_story_id' + Math.random();
+  const id = `id_${Math.random()}`;
 
   store.setValue(id, options);
 
@@ -54,6 +55,7 @@ export function createLiveEditStory(options: StoryState) {
     },
     viewMode: 'story',
     controls: { disable: true },
+    options: { selectedPanel: panelId },
   };
 
   return story as typeof story & Story;

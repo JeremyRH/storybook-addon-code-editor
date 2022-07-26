@@ -1,8 +1,6 @@
-import type * as Monaco from './monacoEditorApi';
+import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 declare var window: any;
-
-const monacoEditorPath = 'https://unpkg.com/monaco-editor@0.33.0/min/vs';
 
 function injectScript(url: string) {
   return new Promise((resolve, reject) => {
@@ -16,10 +14,10 @@ function injectScript(url: string) {
 }
 
 export function loadMonacoEditor(): Promise<typeof Monaco> {
-  return injectScript(`${monacoEditorPath}/loader.js`).then(() => {
+  return injectScript('/vs/loader.js').then(() => {
     return new Promise((resolve) => {
       window.require.config({
-        paths: { vs: monacoEditorPath },
+        paths: { vs: '/vs' },
       });
       window.require(['vs/editor/editor.main'], resolve);
     });
