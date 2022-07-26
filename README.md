@@ -124,21 +124,34 @@ interface Options {
 
 ```sh
 npm i
+npm run install-example-deps
 ```
 
-### Run Build
+### See example
+
+```sh
+npm run start
+```
+
+### Build library
 
 ```sh
 npm run build
 ```
 
-### Run Tests
+### Build docs
+
+```sh
+npm run docs
+```
+
+### Run tests
 
 ```sh
 npm run test
 ```
 
-### Run Formatter
+### Format code
 
 ```sh
 npm run format
