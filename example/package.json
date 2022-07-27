@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "build-storybook": "tsc -p tsconfig.build.json && build-storybook -o ../docs",
-    "storybook": "start-storybook -p 6006 --no-manager-cache"
+    "storybook": "tsc -p tsconfig.build.json && start-storybook -p 6006 --no-manager-cache"
   },
   "dependencies": {
     "react": "^16.9 || 17 || 18"

@@ -1,9 +1,9 @@
 import { Meta } from '@storybook/addon-docs';
 import { Playground } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from './index';
-import ReactTypes from '!!raw-loader!@types/react/index.d.ts';
-import ExampleLibraryTypes from '!!raw-loader!../dist/types.d.ts';
-import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx';
+import ReactTypes from '@types/react/index.d.ts?raw';
+import ExampleLibraryTypes from '../dist/types.d.ts?raw';
+import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
 import './playgroundExample.css';
 
 <Meta
@@ -78,9 +78,9 @@ ${code}
     const code = `
 /* MDX:
 import { Playground } from 'storybook-addon-code-editor';
-import ReactTypes from '!!raw-loader!@types/react/index.d.ts'; // Webpack
-import ExampleLibraryTypes from '!!raw-loader!../dist/types.d.ts'; // Webpack
-import PlaygroundExampleCode from '!!raw-loader!./playgroundExample.source.tsx'; // Webpack
+import ReactTypes from '@types/react/index.d.ts?raw';
+import ExampleLibraryTypes from '../dist/types.d.ts?raw';
+import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
 import './playgroundExample.css';\n
 <Playground
   code={PlaygroundExampleCode}
@@ -129,10 +129,3 @@ ${PlaygroundExampleCode}
     );
   })()}
 </>
-
-Getting file contents as strings is different between Webpack and Vite:
-
-```js
-import ReactTypes from '!!raw-loader!@types/react/index.d.ts'; // Webpack
-import ReactTypes from '@types/react/index.d.ts?raw'; // Vite
-```

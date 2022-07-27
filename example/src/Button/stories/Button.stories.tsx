@@ -1,18 +1,19 @@
 import { createLiveEditStory } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from '../../index';
-import ReactTypes from '!!raw-loader!@types/react/index.d.ts';
-import ExampleLibraryTypes from '!!raw-loader!../../../dist/types.d.ts';
-import ButtonChangeColorJsSource from '!!raw-loader!./editableStoryJs.source';
-import ButtonChangeColorTsSource from '!!raw-loader!./editableStoryTs.source';
+// @ts-ignore
+import ReactTypes from '@types/react/index.d.ts?raw';
+import ExampleLibraryTypes from '../../../dist/types.d.ts?raw';
+import ButtonJsSource from './editableStory.source.js?raw';
+import ButtonTsSource from './editableStory.source.tsx?raw';
 
 export default {
-  title: 'Stories/Example',
-  component: ExampleLibrary.ButtonChangeColor,
+  title: 'Stories/Button',
+  component: ExampleLibrary.Button,
 };
 
 export const EditableStory1 = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
-  code: ButtonChangeColorJsSource,
+  code: ButtonJsSource,
   onCreateEditor(editor, monaco) {
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
@@ -24,7 +25,7 @@ export const EditableStory1 = createLiveEditStory({
 
 export const EditableStory2 = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
-  code: ButtonChangeColorTsSource,
+  code: ButtonTsSource,
   onCreateEditor(editor, monaco) {
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
@@ -41,12 +42,16 @@ export const EditableStory2 = createLiveEditStory({
   },
 });
 
-export const NonEditableStory = (args: any) => <ExampleLibrary.ButtonChangeColor {...args} />;
-
-NonEditableStory.args = {
-  initialColor: 'lightblue',
-  skipTwo: true,
+const nonEditableStoryArgs = {
+  backgroundColor: 'lightblue',
+  children: 'Use the controls tab to edit me',
 };
+
+export const NonEditableStory = (args: typeof nonEditableStoryArgs) => (
+  <ExampleLibrary.Button {...args} />
+);
+
+NonEditableStory.args = nonEditableStoryArgs;
 
 NonEditableStory.parameters = {
   liveCodeEditor: { disable: true },

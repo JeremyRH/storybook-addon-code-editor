@@ -39,13 +39,10 @@ More advanced example:
 ```jsx
 // MyComponent.stories.mdx
 import { Playground } from 'storybook-addon-code-editor';
-
 import * as MyLib from './index';
-
-// !!raw-loader!{import} for Webpack, {import}?raw for Vite.
-import storyCode from '!!raw-loader!./MyStory.source.tsx';
-import ReactTypes from '!!raw-loader!@types/react/index.d.ts';
-import ExampleLibraryTypes from '!!raw-loader!../dist/types.d.ts';
+import storyCode from './MyStory.source.tsx?raw';
+import ReactTypes from '@types/react/index.d.ts?raw';
+import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 
 <Playground
   availableImports={{ 'my-lib': MyLib }}
@@ -92,11 +89,8 @@ Use the `createLiveEditStory` function in traditional stories:
 ```js
 // MyComponent.stories.js
 import { createLiveEditStory } from 'storybook-addon-code-editor';
-
 import * as MyLib from './index';
-
-import storyCode from '!!raw-loader!./MyStory.source.tsx'; // Webpack
-import storyCode from './MyStory.source.tsx?raw'; // Vite
+import storyCode from './MyStory.source.tsx?raw';
 
 export const MyStory = createLiveEditStory({
   availableImports: { 'my-lib': MyLib },

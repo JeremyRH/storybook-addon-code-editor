@@ -20,7 +20,7 @@ function LivePreview({ storyId }: { storyId: string }) {
   const errorBoundaryResetRef = React.useRef<() => void>();
   const fullCode = hasReactRegex.test(state!.code)
     ? state!.code
-    : "import * as React from 'react';\n" + state!.code;
+    : "import * as React from 'react';" + state!.code;
 
   React.useEffect(() => {
     return store.onChange(storyId, (newState) => {
@@ -71,7 +71,7 @@ export function Playground({
   const errorBoundaryResetRef = React.useRef<() => void>();
   const fullCode = hasReactRegex.test(currentCode)
     ? currentCode
-    : "import * as React from 'react';\n" + currentCode;
+    : "import * as React from 'react';" + currentCode;
 
   return (
     <div style={{ border: '1px solid #bebebe' }}>
