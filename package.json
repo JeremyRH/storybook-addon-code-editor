@@ -1,6 +1,6 @@
 {
   "name": "storybook-addon-code-editor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Storybook add-on for live editing stories.",
   "repository": "https://github.com/JeremyRH/storybook-addon-code-editor.git",
   "author": "JeremyRH <holcomb227@gmail.com>",
