@@ -41,7 +41,6 @@ More advanced example:
 import { Playground } from 'storybook-addon-code-editor';
 import * as MyLib from './index';
 import storyCode from './MyStory.source.tsx?raw';
-import ReactTypes from '@types/react/index.d.ts?raw';
 import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 
 <Playground
@@ -54,7 +53,9 @@ import ExampleLibraryTypes from '../dist/types.d.ts?raw';
     editor.getModel().updateOptions({ tabSize: 2 });
     monaco.editor.setTheme('vs-dark');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ReactTypes,
+      // REACT_TYPES is a variable defined with Webpack's DefinePlugin.
+      // See src/preset.ts for more info.
+      REACT_TYPES,
       'file:///node_modules/react/index.d.ts'
     );
     monaco.languages.typescript.typescriptDefaults.addExtraLib(

@@ -115,10 +115,11 @@ interface EditorProps {
   onInput: (value: string) => any;
   value: string;
   onCreateEditor?: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco) => any;
+  parentSize?: string;
 }
 
 export default function Editor(props: EditorProps) {
-  const editorContainerRef = React.useRef(null);
+  const editorContainerRef = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<Monaco.editor.IStandaloneCodeEditor>();
   const propsRef = React.useRef(props);
   const [monaco, createEditor] = useResolved(monacoP) || [];
@@ -156,6 +157,19 @@ export default function Editor(props: EditorProps) {
       editorRef.current.setValue(props.value);
     }
   }, [props.value]);
+
+  // Storybook's Tab container expands to its content.
+  // Monaco editor has no default height so it doesn't expand the parent container.
+  // This forces the Tab container to be a size so the editor appears.
+  React.useEffect(() => {
+    if (!props.parentSize) {
+      return;
+    }
+    const parent = editorContainerRef.current!.parentElement;
+    if (parent) {
+      parent.style.height = props.parentSize;
+    }
+  }, []);
 
   return <div ref={editorContainerRef} style={{ height: '100%' }} />;
 }

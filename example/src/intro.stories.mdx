@@ -1,7 +1,6 @@
 import { Meta } from '@storybook/addon-docs';
 import { Playground } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from './index';
-import ReactTypes from '@types/react/index.d.ts?raw';
 import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
 import './playgroundExample.css';
@@ -78,7 +77,6 @@ ${code}
     const code = `
 /* MDX:
 import { Playground } from 'storybook-addon-code-editor';
-import ReactTypes from '@types/react/index.d.ts?raw';
 import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
 import './playgroundExample.css';\n
@@ -93,7 +91,7 @@ import './playgroundExample.css';\n
     editor.getModel().updateOptions({ tabSize: 2 });
     monaco.editor.setTheme('vs-dark');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ReactTypes,
+      REACT_TYPES,
       'file:///node_modules/react/index.d.ts'
     );
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
@@ -117,7 +115,7 @@ ${PlaygroundExampleCode}
           editor.getModel().updateOptions({ tabSize: 2 });
           monaco.editor.setTheme('vs-dark');
           monaco.languages.typescript.typescriptDefaults.addExtraLib(
-            ReactTypes,
+            REACT_TYPES,
             'file:///node_modules/react/index.d.ts'
           );
           monaco.languages.typescript.typescriptDefaults.addExtraLib(

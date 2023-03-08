@@ -33,6 +33,7 @@ export function register() {
               }}
               value={storyState.code}
               onCreateEditor={storyState.onCreateEditor}
+              parentSize="100%"
             />
           </AddonPanel>
         );

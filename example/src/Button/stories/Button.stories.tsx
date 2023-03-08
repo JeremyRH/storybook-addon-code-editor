@@ -1,7 +1,5 @@
 import { createLiveEditStory } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from '../../index';
-// @ts-ignore
-import ReactTypes from '@types/react/index.d.ts?raw';
 import ExampleLibraryTypes from '../../../dist/types.d.ts?raw';
 import ButtonJsSource from './editableStory.source.js?raw';
 import ButtonTsSource from './editableStory.source.tsx?raw';
@@ -31,7 +29,7 @@ export const EditableStory2 = createLiveEditStory({
       noSemanticValidation: false,
     });
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ReactTypes,
+      REACT_TYPES,
       'file:///node_modules/react/index.d.ts'
     );
     monaco.languages.typescript.typescriptDefaults.addExtraLib(

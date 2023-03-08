@@ -1,6 +1,5 @@
 import type { Story } from '@storybook/api';
 import * as React from 'react';
-import { panelId } from './constants';
 import Editor from './Editor';
 import ErrorBoundary from './ErrorBoundary';
 import { createStore } from './createStore';
@@ -54,8 +53,6 @@ export function createLiveEditStory(options: StoryState) {
       },
     },
     viewMode: 'story',
-    controls: { disable: true },
-    options: { selectedPanel: panelId },
   };
 
   return story as typeof story & Story;
