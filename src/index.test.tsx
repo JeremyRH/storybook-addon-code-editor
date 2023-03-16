@@ -70,12 +70,22 @@ describe('createLiveEditStory', () => {
     const Story = createLiveEditStory({
       availableImports: { a: { b: 'c' } },
       code: `import { b } from 'a';
-              export default () => <div>{b}</div>;`,
+             export default () => <div>{b}</div>;`,
     });
 
     render(<Story />);
 
     await screen.findByText('c');
+  });
+
+  test('passes props to evaled component', async () => {
+    const Story = createLiveEditStory({
+      code: 'export default (props) => <div>{props.a}</div>;',
+    });
+
+    render(<Story a="b" />);
+
+    await screen.findByText('b');
   });
 
   test('recovers from syntax errors', async () => {

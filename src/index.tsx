@@ -14,7 +14,7 @@ interface StoryState {
 const store = createStore<StoryState>(window.parent);
 const hasReactRegex = /import +(\* +as +)?React +from +['"]react['"]/;
 
-function LivePreview({ storyId }: { storyId: string }) {
+function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any }) {
   const [state, setState] = React.useState(store.getValue(storyId));
   const errorBoundaryResetRef = React.useRef<() => void>();
   const fullCode = hasReactRegex.test(state!.code)
@@ -30,7 +30,11 @@ function LivePreview({ storyId }: { storyId: string }) {
 
   return (
     <ErrorBoundary resetRef={errorBoundaryResetRef}>
-      <Preview availableImports={{ react: React, ...state!.availableImports }} code={fullCode} />
+      <Preview
+        availableImports={{ react: React, ...state!.availableImports }}
+        code={fullCode}
+        componentProps={storyArgs}
+      />
     </ErrorBoundary>
   );
 }
@@ -40,7 +44,7 @@ export function createLiveEditStory(options: StoryState) {
 
   store.setValue(id, options);
 
-  const story = () => <LivePreview storyId={id} />;
+  const story = (storyArgs: any) => <LivePreview storyId={id} storyArgs={storyArgs} />;
 
   story.parameters = {
     liveCodeEditor: {

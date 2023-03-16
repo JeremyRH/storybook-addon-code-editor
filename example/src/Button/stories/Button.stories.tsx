@@ -3,13 +3,14 @@ import * as ExampleLibrary from '../../index';
 import ExampleLibraryTypes from '../../../dist/types.d.ts?raw';
 import ButtonJsSource from './editableStory.source.js?raw';
 import ButtonTsSource from './editableStory.source.tsx?raw';
+import ButtonControlsSource from './editableStoryWithControls.source.tsx?raw';
 
 export default {
   title: 'Stories/Button',
   component: ExampleLibrary.Button,
 };
 
-export const EditableStory1 = createLiveEditStory({
+export const EditableStoryJSSource = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonJsSource,
   onCreateEditor(editor, monaco) {
@@ -21,7 +22,7 @@ export const EditableStory1 = createLiveEditStory({
   },
 });
 
-export const EditableStory2 = createLiveEditStory({
+export const EditableStoryTSSource = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonTsSource,
   onCreateEditor(editor, monaco) {
@@ -39,6 +40,30 @@ export const EditableStory2 = createLiveEditStory({
     monaco.editor.setTheme('vs-dark');
   },
 });
+
+export const EditableStoryWithControls = createLiveEditStory({
+  availableImports: { 'example-library': ExampleLibrary },
+  code: ButtonControlsSource,
+  onCreateEditor(editor, monaco) {
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+    });
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      REACT_TYPES,
+      'file:///node_modules/react/index.d.ts'
+    );
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      ExampleLibraryTypes,
+      'file:///node_modules/example-library/index.d.ts'
+    );
+    monaco.editor.setTheme('vs-dark');
+  },
+});
+
+EditableStoryWithControls.args = {
+  backgroundColor: 'black',
+  children: 'Set this text in the controls tab',
+};
 
 const nonEditableStoryArgs = {
   backgroundColor: 'lightblue',

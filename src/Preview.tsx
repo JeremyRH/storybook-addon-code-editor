@@ -4,9 +4,10 @@ import { evalModule, EsModules } from './evalModule';
 interface PreviewProps {
   availableImports: EsModules;
   code: string;
+  componentProps?: any;
 }
 
-export default function Preview({ availableImports, code }: PreviewProps) {
+export default function Preview({ availableImports, code, componentProps }: PreviewProps) {
   let DefaultExport: any;
 
   try {
@@ -20,5 +21,5 @@ export default function Preview({ availableImports, code }: PreviewProps) {
     return <pre>{String(error)}</pre>;
   }
 
-  return <DefaultExport />;
+  return <DefaultExport {...componentProps} />;
 }
