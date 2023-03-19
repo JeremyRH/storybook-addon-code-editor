@@ -23,6 +23,11 @@ module.exports = {
     ...
 ```
 
+**Important:**
+
+Use [Storybook builder `webpack5`](https://github.com/storybookjs/storybook/blob/65dd683883a884e6e31a2e84b0054b0e260078a0/lib/builder-webpack5/README.md).
+Other builders are not compatible at this time.
+
 ### `Playground`
 
 Use the `Playground` component in [MDX format](https://storybook.js.org/docs/react/api/mdx).
