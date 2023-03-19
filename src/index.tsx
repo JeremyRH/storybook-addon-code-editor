@@ -1,6 +1,6 @@
 import type { Story } from '@storybook/api';
 import * as React from 'react';
-import Editor from './Editor';
+import Editor from './Editor/Editor';
 import ErrorBoundary from './ErrorBoundary';
 import { createStore } from './createStore';
 import Preview from './Preview';
@@ -8,7 +8,9 @@ import Preview from './Preview';
 interface StoryState {
   code: string;
   availableImports?: Record<string, Record<string, unknown>>;
+  modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
   onCreateEditor?: React.ComponentProps<typeof Editor>['onCreateEditor'];
+  setupEditor?: React.ComponentProps<typeof Editor>['setupEditor'];
 }
 
 const store = createStore<StoryState>(window.parent);
@@ -51,12 +53,9 @@ export function createLiveEditStory(options: StoryState) {
       disable: false,
       id,
     },
-    previewTabs: {
-      'storybook/docs/panel': {
-        hidden: true,
-      },
+    docs: {
+      transformSource: (code: string) => store.getValue(id)?.code ?? code,
     },
-    viewMode: 'story',
   };
 
   return story as typeof story & Story;
@@ -65,8 +64,8 @@ export function createLiveEditStory(options: StoryState) {
 export function Playground({
   availableImports,
   code = '',
-  onCreateEditor,
   height = '200px',
+  ...editorProps
 }: Partial<StoryState> & { height?: string }) {
   const [currentCode, setCurrentCode] = React.useState(code);
   const errorBoundaryResetRef = React.useRef<() => void>();
@@ -90,12 +89,12 @@ export function Playground({
         }}
       >
         <Editor
+          {...editorProps}
           onInput={(newCode) => {
             setCurrentCode(newCode);
             errorBoundaryResetRef.current?.();
           }}
           value={currentCode}
-          onCreateEditor={onCreateEditor}
         />
       </div>
     </div>

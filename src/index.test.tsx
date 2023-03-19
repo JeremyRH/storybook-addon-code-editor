@@ -78,7 +78,7 @@ describe('createLiveEditStory', () => {
     await screen.findByText('c');
   });
 
-  test('passes props to evaled component', async () => {
+  test('passes props to evaluated component', async () => {
     const Story = createLiveEditStory({
       code: 'export default (props) => <div>{props.a}</div>;',
     });

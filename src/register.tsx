@@ -3,7 +3,7 @@ import { AddonPanel } from '@storybook/components';
 import { addons, types } from '@storybook/addons';
 import { addonId, panelId, paramId } from './constants';
 import { createStore } from './createStore';
-import Editor from './Editor';
+import Editor from './Editor/Editor';
 import type { createLiveEditStory } from './index';
 
 type StoryState = Parameters<typeof createLiveEditStory>[0];
@@ -28,11 +28,11 @@ export function register() {
         return (
           <AddonPanel active={true} key={key}>
             <Editor
+              {...storyState}
               onInput={(newCode) => {
                 store.setValue(storyId, { ...storyState, code: newCode });
               }}
               value={storyState.code}
-              onCreateEditor={storyState.onCreateEditor}
               parentSize="100%"
             />
           </AddonPanel>

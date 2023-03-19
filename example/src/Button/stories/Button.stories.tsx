@@ -3,7 +3,6 @@ import * as ExampleLibrary from '../../index';
 import ExampleLibraryTypes from '../../../dist/types.d.ts?raw';
 import ButtonJsSource from './editableStory.source.js?raw';
 import ButtonTsSource from './editableStory.source.tsx?raw';
-import ButtonControlsSource from './editableStoryWithControls.source.tsx?raw';
 
 export default {
   title: 'Stories/Button',
@@ -13,22 +12,21 @@ export default {
 export const EditableStoryJSSource = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonJsSource,
-  onCreateEditor(editor, monaco) {
+  setupEditor(monaco, createEditor) {
+    return createEditor({ tabSize: 2 });
+  },
+  modifyEditor(monaco, editor) {
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
     });
     monaco.editor.setTheme('vs-light');
-    editor.focus();
   },
 });
 
 export const EditableStoryTSSource = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonTsSource,
-  onCreateEditor(editor, monaco) {
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: false,
-    });
+  modifyEditor(monaco, editor) {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       REACT_TYPES,
       'file:///node_modules/react/index.d.ts'
@@ -37,17 +35,26 @@ export const EditableStoryTSSource = createLiveEditStory({
       ExampleLibraryTypes,
       'file:///node_modules/example-library/index.d.ts'
     );
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+    });
     monaco.editor.setTheme('vs-dark');
+    editor.focus();
   },
 });
 
 export const EditableStoryWithControls = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
-  code: ButtonControlsSource,
-  onCreateEditor(editor, monaco) {
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: false,
-    });
+  code: `
+    import { Button } from 'example-library';
+
+    export default (props: React.ComponentProps<typeof Button>) => {
+      return <Button {...props} />;
+    };
+  `
+    .trim()
+    .replace(/^ {4}/gm, ''),
+  modifyEditor(monaco, editor) {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       REACT_TYPES,
       'file:///node_modules/react/index.d.ts'
@@ -56,6 +63,9 @@ export const EditableStoryWithControls = createLiveEditStory({
       ExampleLibraryTypes,
       'file:///node_modules/example-library/index.d.ts'
     );
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+    });
     monaco.editor.setTheme('vs-dark');
   },
 });
@@ -64,6 +74,10 @@ EditableStoryWithControls.args = {
   backgroundColor: 'black',
   children: 'Set this text in the controls tab',
 };
+
+[EditableStoryJSSource, EditableStoryTSSource, EditableStoryWithControls].forEach(
+  (story) => (story.parameters.viewMode = 'story')
+);
 
 const nonEditableStoryArgs = {
   backgroundColor: 'lightblue',

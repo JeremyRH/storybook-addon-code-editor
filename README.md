@@ -47,7 +47,7 @@ import ExampleLibraryTypes from '../dist/types.d.ts?raw';
   availableImports={{ 'my-lib': MyLib }}
   code={storyCode}
   height="560px"
-  onCreateEditor={(editor, monaco) => {
+  modifyEditor={(monaco, editor) => {
     // editor docs: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html
     // monaco docs: https://microsoft.github.io/monaco-editor/api/modules/monaco.html
     editor.getModel().updateOptions({ tabSize: 2 });
@@ -63,6 +63,11 @@ import ExampleLibraryTypes from '../dist/types.d.ts?raw';
       'file:///node_modules/example-library/index.d.ts'
     );
   }}
+  // setupEditor is called when the editor is rendered for the first time, not when navigating from story to story.
+  // Useful for integrating with monaco addons.
+  setupEditor={(monaco, createEditor) => {
+    return createEditor({ tabSize: 4 });
+  }}
 />
 ```
 
@@ -76,7 +81,8 @@ interface PlaygroundProps {
       [namedImport: string]: any;
     };
   };
-  onCreateEditor?: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: Monaco) => any;
+  modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
+  setupEditor?: (monaco: Monaco, createEditor: ((options) => Monaco.editor.IStandaloneCodeEditor | void)) => any;
   height?: string;
 }
 ```
@@ -109,7 +115,7 @@ interface Options {
       [namedImport: string]: any;
     };
   };
-  onCreateEditor?: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: Monaco) => any;
+  modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
 }
 ```
 

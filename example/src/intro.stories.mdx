@@ -64,7 +64,7 @@ import { Playground } from 'storybook-addon-code-editor';
 <Playground code="${code}" />
 */\n
 ${code}
-    `.trim()}
+        `.trim()}
       />
     );
   })()}
@@ -87,9 +87,7 @@ import './playgroundExample.css';\n
     './playgroundExample.css': {},
   }}
   height="560px"
-  onCreateEditor={(editor, monaco) => {
-    editor.getModel().updateOptions({ tabSize: 2 });
-    monaco.editor.setTheme('vs-dark');
+  modifyEditor={(monaco, editor) => {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       REACT_TYPES,
       'file:///node_modules/react/index.d.ts'
@@ -98,11 +96,12 @@ import './playgroundExample.css';\n
       ExampleLibraryTypes,
       'file:///node_modules/example-library/index.d.ts'
     );
+    monaco.editor.setTheme('vs-dark');
   }}
 />
 */\n
 ${PlaygroundExampleCode}
-  `.trim();
+    `.trim();
     return (
       <Playground
         code={code}
@@ -111,9 +110,7 @@ ${PlaygroundExampleCode}
           './playgroundExample.css': {},
         }}
         height="560px"
-        onCreateEditor={(editor, monaco) => {
-          editor.getModel().updateOptions({ tabSize: 2 });
-          monaco.editor.setTheme('vs-dark');
+        modifyEditor={(monaco, editor) => {
           monaco.languages.typescript.typescriptDefaults.addExtraLib(
             REACT_TYPES,
             'file:///node_modules/react/index.d.ts'
@@ -122,6 +119,7 @@ ${PlaygroundExampleCode}
             ExampleLibraryTypes,
             'file:///node_modules/example-library/index.d.ts'
           );
+          monaco.editor.setTheme('vs-dark');
         }}
       />
     );
