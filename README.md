@@ -63,12 +63,12 @@ import ExampleLibraryTypes from '../dist/types.d.ts?raw';
       'file:///node_modules/example-library/index.d.ts'
     );
   }}
-  // setupEditor is called when the editor is rendered for the first time, not when navigating from story to story.
-  // Useful for integrating with monaco addons.
+  // setupEditor is called when the editor is rendered for the first time, not when
+  // navigating from story to story. Useful for integrating with monaco addons.
   setupEditor={(monaco, createEditor) => {
     return createEditor({ tabSize: 4 });
   }}
-/>
+/>;
 ```
 
 `Playground` props:
@@ -82,7 +82,10 @@ interface PlaygroundProps {
     };
   };
   modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
-  setupEditor?: (monaco: Monaco, createEditor: ((options) => Monaco.editor.IStandaloneCodeEditor | void)) => any;
+  setupEditor?: (
+    monaco: Monaco,
+    createEditor: (options) => Monaco.editor.IStandaloneCodeEditor | void
+  ) => any;
   height?: string;
 }
 ```
@@ -116,6 +119,10 @@ interface Options {
     };
   };
   modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
+  setupEditor?: (
+    monaco: Monaco,
+    createEditor: (options) => Monaco.editor.IStandaloneCodeEditor | void
+  ) => any;
 }
 ```
 
