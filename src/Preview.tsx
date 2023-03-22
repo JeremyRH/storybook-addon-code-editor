@@ -1,5 +1,5 @@
 import React from 'react';
-import { evalModule, EsModules } from './evalModule';
+import { EsModules, evalModule } from './evalModule';
 
 interface PreviewProps {
   availableImports: EsModules;

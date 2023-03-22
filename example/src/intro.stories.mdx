@@ -1,7 +1,6 @@
 import { Meta } from '@storybook/addon-docs';
 import { Playground } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from './index';
-import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
 import './playgroundExample.css';
 
@@ -31,25 +30,47 @@ Install as a dev dependency.
 npm install --save-dev storybook-addon-code-editor
 ```
 
-Add `storybook-addon-code-editor` in your `.storybook/main.js` file:
+Add `storybook-addon-code-editor` in your `.storybook/main.js` file and add the `staticDirs`:
 
 ```js
+// .storybook/main.js
+const { getCodeEditorStaticDirs } = require('storybook-addon-code-editor/getStaticDirs');
+
 module.exports = {
   addons: [
     'storybook-addon-code-editor',
     ...
+  ],
+  staticDirs: [
+    ...getCodeEditorStaticDirs(),
+    ...
 ```
 
-<p>
-  See{' '}
-  <a
-    href="https://github.com/JeremyRH/storybook-addon-code-editor/tree/main/example"
-    target="_blank"
-  >
-    /example
-  </a>{' '}
-  for usage.
-</p>
+<details>
+<summary>About `staticDirs`</summary>
+
+`staticDirs` sets a list of directories of static files to be loaded by Storybook.
+The editor ([monaco-editor](https://github.com/microsoft/monaco-editor)) requires these extra static files to be available at runtime.
+
+Additional static files can be added using the `getExtraStaticDir` helper from `storybook-addon-code-editor/getStaticDirs`:
+
+```js
+// .storybook/main.js
+const {
+  getCodeEditorStaticDirs,
+  getExtraStaticDir,
+} = require('storybook-addon-code-editor/getStaticDirs');
+
+module.exports = {
+  staticDirs: [
+    ...getCodeEditorStaticDirs(),
+    getExtraStaticDir('monaco-editor/esm'), // hosted at: /monaco-editor/esm
+    ...
+```
+
+</details>
+
+<br />
 
 ## Showcase
 
@@ -77,7 +98,6 @@ ${code}
     const code = `
 /* MDX:
 import { Playground } from 'storybook-addon-code-editor';
-import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
 import './playgroundExample.css';\n
 <Playground
@@ -88,14 +108,6 @@ import './playgroundExample.css';\n
   }}
   height="560px"
   modifyEditor={(monaco, editor) => {
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      REACT_TYPES,
-      'file:///node_modules/react/index.d.ts'
-    );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ExampleLibraryTypes,
-      'file:///node_modules/example-library/index.d.ts'
-    );
     monaco.editor.setTheme('vs-dark');
   }}
 />
@@ -111,17 +123,22 @@ ${PlaygroundExampleCode}
         }}
         height="560px"
         modifyEditor={(monaco, editor) => {
-          monaco.languages.typescript.typescriptDefaults.addExtraLib(
-            REACT_TYPES,
-            'file:///node_modules/react/index.d.ts'
-          );
-          monaco.languages.typescript.typescriptDefaults.addExtraLib(
-            ExampleLibraryTypes,
-            'file:///node_modules/example-library/index.d.ts'
-          );
           monaco.editor.setTheme('vs-dark');
         }}
       />
     );
   })()}
 </>
+
+<br />
+
+<p>
+  See{' '}
+  <a
+    href="https://github.com/JeremyRH/storybook-addon-code-editor/tree/main/example"
+    target="_blank"
+  >
+    /example
+  </a>{' '}
+  for additional usage.
+</p>

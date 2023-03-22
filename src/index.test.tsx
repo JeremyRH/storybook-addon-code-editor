@@ -1,8 +1,9 @@
-import * as React from 'react';
 import { render, screen } from '@testing-library/react';
+import * as React from 'react';
 import { act } from 'react-dom/test-utils';
-import { createLiveEditStory, Playground } from './index';
 import { createStore } from './createStore';
+import { createLiveEditStory, Playground, setupMonaco } from './index';
+import { getCodeEditorStaticDirs, getExtraStaticDir } from '../getStaticDirs';
 
 const originalConsoleError = console.error;
 
@@ -96,7 +97,7 @@ describe('createLiveEditStory', () => {
     await screen.findByText('SyntaxError', { exact: false });
 
     act(() => {
-      createStore<any>(window).setValue(Story.parameters.liveCodeEditor.id, {
+      createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
         code: 'export default () => <div>Hello</div>',
       });
     });
@@ -112,7 +113,7 @@ describe('createLiveEditStory', () => {
     await screen.findByText("TypeError: Cannot read properties of undefined (reading 'defined')");
 
     act(() => {
-      createStore<any>(window).setValue(Story.parameters.liveCodeEditor.id, {
+      createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
         code: 'export default () => <div>Hello</div>',
       });
     });
@@ -133,7 +134,7 @@ describe('createLiveEditStory', () => {
     await screen.findByText("TypeError: Cannot read properties of undefined (reading 'defined')");
 
     act(() => {
-      createStore<any>(window).setValue(Story.parameters.liveCodeEditor.id, {
+      createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
         code: 'export default () => <div>Hello</div>',
       });
     });
@@ -145,5 +146,36 @@ describe('createLiveEditStory', () => {
 describe('Playground', () => {
   test('is a function', () => {
     expect(typeof Playground).toBe('function');
+  });
+});
+
+describe('setupMonaco', () => {
+  test('is a function', () => {
+    expect(typeof setupMonaco).toBe('function');
+  });
+});
+
+describe('getCodeEditorStaticDirs', () => {
+  test('is a function', () => {
+    expect(typeof getCodeEditorStaticDirs).toBe('function');
+  });
+
+  test('returns an array of objects', () => {
+    const result = getCodeEditorStaticDirs();
+    expect(Array.isArray(result)).toBe(true);
+    expect(typeof result[0].to).toBe('string');
+    expect(typeof result[0].from).toBe('string');
+  });
+});
+
+describe('getExtraStaticDir', () => {
+  test('is a function', () => {
+    expect(typeof getExtraStaticDir).toBe('function');
+  });
+
+  test('returns an object', () => {
+    const result = getExtraStaticDir('jest');
+    expect(typeof result.to).toBe('string');
+    expect(typeof result.from).toBe('string');
   });
 });

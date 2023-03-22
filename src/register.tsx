@@ -1,6 +1,6 @@
-import React from 'react';
-import { AddonPanel } from '@storybook/components';
 import { addons, types } from '@storybook/addons';
+import { AddonPanel } from '@storybook/components';
+import React from 'react';
 import { addonId, panelId, paramId } from './constants';
 import { createStore } from './createStore';
 import Editor from './Editor/Editor';
@@ -8,7 +8,7 @@ import type { createLiveEditStory } from './index';
 
 type StoryState = Parameters<typeof createLiveEditStory>[0];
 
-const store = createStore<StoryState>(window);
+const store = createStore<StoryState>();
 
 export function register() {
   addons.register(addonId, (api) => {

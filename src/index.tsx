@@ -1,19 +1,18 @@
 import type { Story } from '@storybook/api';
 import * as React from 'react';
+import { createStore } from './createStore';
 import Editor from './Editor/Editor';
 import ErrorBoundary from './ErrorBoundary';
-import { createStore } from './createStore';
 import Preview from './Preview';
+export { setupMonaco } from './Editor/setupMonaco';
 
 interface StoryState {
   code: string;
   availableImports?: Record<string, Record<string, unknown>>;
   modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
-  onCreateEditor?: React.ComponentProps<typeof Editor>['onCreateEditor'];
-  setupEditor?: React.ComponentProps<typeof Editor>['setupEditor'];
 }
 
-const store = createStore<StoryState>(window.parent);
+const store = createStore<StoryState>();
 const hasReactRegex = /import +(\* +as +)?React +from +['"]react['"]/;
 
 function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any }) {

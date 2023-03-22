@@ -1,6 +1,6 @@
 # storybook-addon-code-editor
 
-A Storybook add-on for live editing stories. Supports JavaScript and TypeScript.
+A Storybook add-on for live editing stories. Supports React and TypeScript.
 
 [Demo](https://jeremyrh.github.io/storybook-addon-code-editor)
 
@@ -14,19 +14,60 @@ Install as a dev dependency.
 npm install --save-dev storybook-addon-code-editor
 ```
 
-Add `storybook-addon-code-editor` in your `.storybook/main.js` file:
+Add `storybook-addon-code-editor` in your `.storybook/main.js` file and add the `staticDirs`:
 
 ```js
+// .storybook/main.js
+const {
+  getCodeEditorStaticDirs
+} = require('storybook-addon-code-editor/getStaticDirs');
+
 module.exports = {
   addons: [
     'storybook-addon-code-editor',
     ...
+  ],
+  staticDirs: [
+    ...getCodeEditorStaticDirs(),
+    ...
 ```
+
+<details>
+<summary>About `staticDirs`</summary>
+
+`staticDirs` sets a list of directories of static files to be loaded by Storybook.
+The editor ([monaco-editor](https://github.com/microsoft/monaco-editor)) requires these extra static files to be available at runtime.
+
+Additional static files can be added using the `getExtraStaticDir` helper from `storybook-addon-code-editor/getStaticDirs`:
+
+```js
+// .storybook/main.js
+const {
+  getCodeEditorStaticDirs,
+  getExtraStaticDir,
+} = require('storybook-addon-code-editor/getStaticDirs');
+
+module.exports = {
+  staticDirs: [
+    ...getCodeEditorStaticDirs(),
+    getExtraStaticDir('monaco-editor/esm'), // hosted at: /monaco-editor/esm
+    ...
+```
+
+</details>
+
+<br />
 
 **Important:**
 
-Use [Storybook builder `webpack5`](https://github.com/storybookjs/storybook/blob/65dd683883a884e6e31a2e84b0054b0e260078a0/lib/builder-webpack5/README.md).
-Other builders are not compatible at this time.
+The default Webpack 4 builder does not work with `storybook-addon-code-editor`.
+Please use one of the following:
+- [`@storybook/builder-webpack5`](https://github.com/storybookjs/storybook/blob/65dd683883a884e6e31a2e84b0054b0e260078a0/lib/builder-webpack5/README.md)
+- [`@storybook/builder-vite`](https://github.com/storybookjs/builder-vite)
+
+<br />
+
+## API
 
 ### `Playground`
 
@@ -36,20 +77,21 @@ Use the `Playground` component in [MDX format](https://storybook.js.org/docs/rea
 // MyComponent.stories.mdx
 import { Playground } from 'storybook-addon-code-editor';
 
-<Playground code="export default () => <h1>H1</h1>;"} />
+<Playground code="export default () => <h1>Hello</h1>;"} />
 ```
 
-More advanced example:
+<details>
+<summary>More advanced example</summary>
 
 ```jsx
 // MyComponent.stories.mdx
 import { Playground } from 'storybook-addon-code-editor';
-import * as MyLib from './index';
+import * as MyLibrary from './index';
 import storyCode from './MyStory.source.tsx?raw';
-import ExampleLibraryTypes from '../dist/types.d.ts?raw';
+import MyLibraryTypes from '../dist/types.d.ts?raw';
 
 <Playground
-  availableImports={{ 'my-lib': MyLib }}
+  availableImports={{ 'my-library': MyLibrary }}
   code={storyCode}
   height="560px"
   modifyEditor={(monaco, editor) => {
@@ -58,44 +100,34 @@ import ExampleLibraryTypes from '../dist/types.d.ts?raw';
     editor.getModel().updateOptions({ tabSize: 2 });
     monaco.editor.setTheme('vs-dark');
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      // REACT_TYPES is a variable defined with Webpack's DefinePlugin.
-      // See src/preset.ts for more info.
-      REACT_TYPES,
-      'file:///node_modules/react/index.d.ts'
+      MyLibraryTypes,
+      'file:///node_modules/my-library/index.d.ts'
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ExampleLibraryTypes,
-      'file:///node_modules/example-library/index.d.ts'
-    );
-  }}
-  // setupEditor is called when the editor is rendered for the first time, not when
-  // navigating from story to story. Useful for integrating with monaco addons.
-  setupEditor={(monaco, createEditor) => {
-    return createEditor({ tabSize: 4 });
   }}
 />;
 ```
+
+</details>
+
+<br />
 
 `Playground` props:
 
 ```ts
 interface PlaygroundProps {
-  code?: string;
   availableImports?: {
     [importSpecifier: string]: {
       [namedImport: string]: any;
     };
   };
-  modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
-  setupEditor?: (
-    monaco: Monaco,
-    createEditor: (options) => Monaco.editor.IStandaloneCodeEditor | void
-  ) => any;
+  code?: string;
   height?: string;
+  modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
 }
 ```
 
-`React` is an available import by default and automatically imported if the code does not import it.
+`React` is automatically imported if `code` does not import it.
+React TypeScript definitions will be automatically loaded if `@types/react` is available.
 
 ### `createLiveEditStory`
 
@@ -104,11 +136,11 @@ Use the `createLiveEditStory` function in traditional stories:
 ```js
 // MyComponent.stories.js
 import { createLiveEditStory } from 'storybook-addon-code-editor';
-import * as MyLib from './index';
+import * as MyLibrary from './index';
 import storyCode from './MyStory.source.tsx?raw';
 
 export const MyStory = createLiveEditStory({
-  availableImports: { 'my-lib': MyLib },
+  availableImports: { 'my-library': MyLibrary },
   code: storyCode,
 });
 ```
@@ -116,20 +148,53 @@ export const MyStory = createLiveEditStory({
 `createLiveEditStory` options:
 
 ```ts
-interface Options {
-  code: string;
+interface LiveEditStoryOptions {
   availableImports?: {
     [importSpecifier: string]: {
       [namedImport: string]: any;
     };
   };
+  code: string;
   modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
-  setupEditor?: (
-    monaco: Monaco,
-    createEditor: (options) => Monaco.editor.IStandaloneCodeEditor | void
-  ) => any;
 }
 ```
+
+### `setupMonaco`
+
+`setupMonaco` allows customization of [`monaco-editor`](https://github.com/microsoft/monaco-editor).
+
+Use this in your `.storybook/preview.js` to add type definitions or integrations.
+
+Check out [examples of `monaco-editor`](https://github.com/microsoft/monaco-editor/tree/ae158a25246af016a0c56e2b47df83bd4b1c2426/samples) with different configurations.
+
+```js
+// .storybook/preview.js
+import { setupMonaco } from 'storybook-addon-code-editor';
+
+setupMonaco({
+  // https://microsoft.github.io/monaco-editor/typedoc/interfaces/Environment.html
+  monacoEnvironment: {
+    getWorker(moduleId, label) {
+      ...
+    },
+  },
+  // onMonacoLoad is called when monaco is fist loaded and before an editor instance is created.
+  onMonacoLoad(monaco) {
+    ...
+  },
+});
+```
+
+`setupMonaco` options:
+
+```ts
+interface MonacoSetup {
+  monacoEnvironment?: Monaco.Environment;
+  onMonacoLoad?: (monaco: Monaco) => any;
+}
+```
+
+<br />
 
 ## Contributing
 

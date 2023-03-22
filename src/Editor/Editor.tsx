@@ -1,28 +1,44 @@
 import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import * as React from 'react';
 import { getMonacoOverflowContainer } from './getMonacoOverflowContainer';
-import { loadMonacoEditor } from './loadMonacoEditor';
+import { monacoLoader } from './monacoLoader';
+import { reactTypesLoader } from './reactTypesLoader';
+import { getMonacoSetup } from './setupMonaco';
 
-const monacoPromise = loadMonacoEditor().then((monaco) => {
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-    jsx: 1,
-  });
-  monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-    noSemanticValidation: true,
-    noSyntaxValidation: false,
-  });
+let monacoPromise: Promise<typeof Monaco> | undefined;
 
-  return monaco;
-});
+function loadMonacoEditor() {
+  const monacoSetup = getMonacoSetup();
+
+  window.MonacoEnvironment = monacoSetup.monacoEnvironment;
+
+  return (monacoPromise ||= Promise.all([monacoLoader(), reactTypesLoader()]).then(
+    ([monaco, reactTypes]) => {
+      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+        jsx: 1,
+      });
+      monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+        noSemanticValidation: true,
+        noSyntaxValidation: false,
+      });
+
+      if (reactTypes) {
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(
+          reactTypes,
+          'file:///node_modules/react/index.d.ts'
+        );
+      }
+
+      monacoSetup.onMonacoLoad?.(monaco);
+
+      return monaco;
+    }
+  ));
+}
 
 let fileCount = 1;
 
-function createEditor(
-  monaco: typeof Monaco,
-  code: string,
-  container: HTMLElement,
-  options?: Monaco.editor.IStandaloneEditorConstructionOptions
-) {
+function createEditor(monaco: typeof Monaco, code: string, container: HTMLElement) {
   const uri = monaco.Uri.parse(`file:///index${fileCount++}.tsx`);
 
   return monaco.editor.create(container, {
@@ -31,7 +47,6 @@ function createEditor(
     model: monaco.editor.createModel(code, 'typescript', uri),
     overflowWidgetsDomNode: getMonacoOverflowContainer('monacoOverflowContainer'),
     tabSize: 2,
-    ...options,
   });
 }
 
@@ -39,15 +54,7 @@ interface EditorProps {
   onInput: (value: string) => any;
   value: string;
   modifyEditor?: (monaco: typeof Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
-  /** @deprecated use modifyEditor instead */
-  onCreateEditor?: (editor: Monaco.editor.IStandaloneCodeEditor, monaco: typeof Monaco) => any;
   parentSize?: string;
-  setupEditor?: (
-    monaco: typeof Monaco,
-    createEditor: (
-      options?: Monaco.editor.IStandaloneEditorConstructionOptions
-    ) => Monaco.editor.IStandaloneCodeEditor
-  ) => Monaco.editor.IStandaloneCodeEditor | void;
 }
 
 interface EditorState {
@@ -67,12 +74,9 @@ export default function Editor(props: EditorProps) {
       resolveContainer = resolve;
     });
 
-    Promise.all([containerPromise, monacoPromise]).then(([editorContainer, monaco]) => {
-      const createEditorCb = (options?: Monaco.editor.IStandaloneEditorConstructionOptions) =>
-        createEditor(monaco, props.value, editorContainer, options);
-
+    Promise.all([containerPromise, loadMonacoEditor()]).then(([editorContainer, monaco]) => {
       stateRef.monaco = monaco;
-      stateRef.editor = props.setupEditor?.(monaco, createEditorCb) || createEditorCb();
+      stateRef.editor = createEditor(monaco, props.value, editorContainer);
 
       stateRef.editor.onDidChangeModelContent(() => {
         const currentValue = stateRef.editor?.getValue();
@@ -97,10 +101,9 @@ export default function Editor(props: EditorProps) {
 
   React.useEffect(() => {
     if (stateRef.monaco && stateRef.editor) {
-      props.onCreateEditor?.(stateRef.editor, stateRef.monaco);
       props.modifyEditor?.(stateRef.monaco, stateRef.editor);
     }
-  }, [stateRef.monaco, props.modifyEditor, props.onCreateEditor]);
+  }, [stateRef.monaco, props.modifyEditor]);
 
   React.useEffect(() => {
     return () => {

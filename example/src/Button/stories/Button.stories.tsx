@@ -1,6 +1,5 @@
 import { createLiveEditStory } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from '../../index';
-import ExampleLibraryTypes from '../../../dist/types.d.ts?raw';
 import ButtonJsSource from './editableStory.source.js?raw';
 import ButtonTsSource from './editableStory.source.tsx?raw';
 
@@ -12,9 +11,6 @@ export default {
 export const EditableStoryJSSource = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonJsSource,
-  setupEditor(monaco, createEditor) {
-    return createEditor({ tabSize: 2 });
-  },
   modifyEditor(monaco, editor) {
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
@@ -22,19 +18,13 @@ export const EditableStoryJSSource = createLiveEditStory({
     monaco.editor.setTheme('vs-light');
   },
 });
+// Make the default tab 'Story' instead of 'Docs'.
+EditableStoryJSSource.parameters.viewMode = 'story';
 
 export const EditableStoryTSSource = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonTsSource,
   modifyEditor(monaco, editor) {
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      REACT_TYPES,
-      'file:///node_modules/react/index.d.ts'
-    );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ExampleLibraryTypes,
-      'file:///node_modules/example-library/index.d.ts'
-    );
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
     });
@@ -42,6 +32,8 @@ export const EditableStoryTSSource = createLiveEditStory({
     editor.focus();
   },
 });
+
+EditableStoryTSSource.parameters.viewMode = 'story';
 
 export const EditableStoryWithControls = createLiveEditStory({
   availableImports: { 'example-library': ExampleLibrary },
@@ -55,14 +47,6 @@ export const EditableStoryWithControls = createLiveEditStory({
     .trim()
     .replace(/^ {4}/gm, ''),
   modifyEditor(monaco, editor) {
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      REACT_TYPES,
-      'file:///node_modules/react/index.d.ts'
-    );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      ExampleLibraryTypes,
-      'file:///node_modules/example-library/index.d.ts'
-    );
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
     });
@@ -70,14 +54,13 @@ export const EditableStoryWithControls = createLiveEditStory({
   },
 });
 
+EditableStoryWithControls.parameters.viewMode = 'story';
+
+// This story also has controls.
 EditableStoryWithControls.args = {
   backgroundColor: 'black',
   children: 'Set this text in the controls tab',
 };
-
-[EditableStoryJSSource, EditableStoryTSSource, EditableStoryWithControls].forEach(
-  (story) => (story.parameters.viewMode = 'story')
-);
 
 const nonEditableStoryArgs = {
   backgroundColor: 'lightblue',
@@ -90,6 +73,7 @@ export const NonEditableStory = (args: typeof nonEditableStoryArgs) => (
 
 NonEditableStory.args = nonEditableStoryArgs;
 
+// Hide the code editor tab for this story.
 NonEditableStory.parameters = {
   liveCodeEditor: { disable: true },
 };

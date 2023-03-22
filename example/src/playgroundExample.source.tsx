@@ -29,9 +29,6 @@ export default () => {
       <h1>Complex example (rock, paper, scissors)</h1>
 
       <h2>
-        <pre>Opponent's previous choice: {previousChoice}</pre>
-      </h2>
-      <h2>
         <pre>
           👍 {wins} | 👎 {losses} | 🤝 {ties}
         </pre>
@@ -47,6 +44,12 @@ export default () => {
           {hand}
         </Button>
       ))}
+
+      {previousChoice && (
+        <h2>
+          <pre>Opponent's previous choice: {previousChoice}</pre>
+        </h2>
+      )}
     </>
   );
 };

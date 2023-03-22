@@ -47,6 +47,6 @@ function newKeyStore<T>(): KeyStore<T> {
   };
 }
 
-export function createStore<T>(global: any): KeyStore<T> {
-  return (global._addon_code_editor_store ||= newKeyStore());
+export function createStore<T>(): KeyStore<T> {
+  return ((window.top as any)._addon_code_editor_store ||= newKeyStore());
 }

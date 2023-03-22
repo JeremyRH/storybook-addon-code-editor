@@ -3,6 +3,7 @@
   "compilerOptions": {
     "emitDeclarationOnly": true,
     "isolatedModules": false,
+    // "module": "AMD" produces a single .d.ts file for the whole library.
     "module": "AMD",
     "moduleResolution": "Node",
     "outFile": "dist/types"
