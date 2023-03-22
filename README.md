@@ -50,7 +50,7 @@ const {
 module.exports = {
   staticDirs: [
     ...getCodeEditorStaticDirs(),
-    getExtraStaticDir('monaco-editor/esm'), // hosted at: /monaco-editor/esm
+    getExtraStaticDir('monaco-editor/esm'), // hosted at: monaco-editor/esm
     ...
 ```
 

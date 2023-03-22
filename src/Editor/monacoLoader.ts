@@ -12,10 +12,10 @@ function injectScript(url: string) {
 }
 
 export function monacoLoader(): Promise<typeof Monaco> {
-  return injectScript('/monaco-editor/min/vs/loader.js').then(() => {
+  return injectScript('monaco-editor/min/vs/loader.js').then(() => {
     return new Promise((resolve) => {
       (window as any).require.config({
-        paths: { vs: '/monaco-editor/min/vs' },
+        paths: { vs: 'monaco-editor/min/vs' },
       });
       (window as any).require(['vs/editor/editor.main'], resolve);
     });

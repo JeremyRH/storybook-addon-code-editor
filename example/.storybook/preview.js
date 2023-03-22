@@ -29,20 +29,20 @@ setupMonaco({
   // monacoEnvironment: {
   //   getWorker(moduleId, label) {
   //     if (label === 'json') {
-  //       return new Worker('/monaco-editor/esm/vs/language/json/json.worker.js', { type: 'module' });
+  //       return new Worker('monaco-editor/esm/vs/language/json/json.worker.js', { type: 'module' });
   //     }
   //     if (label === 'css' || label === 'scss' || label === 'less') {
-  //       return new Worker('/monaco-editor/esm/vs/language/css/css.worker.js', { type: 'module' });
+  //       return new Worker('monaco-editor/esm/vs/language/css/css.worker.js', { type: 'module' });
   //     }
   //     if (label === 'html' || label === 'handlebars' || label === 'razor') {
-  //       return new Worker('/monaco-editor/esm/vs/language/html/html.worker.js', { type: 'module' });
+  //       return new Worker('monaco-editor/esm/vs/language/html/html.worker.js', { type: 'module' });
   //     }
   //     if (label === 'typescript' || label === 'javascript') {
-  //       return new Worker('/monaco-editor/esm/vs/language/typescript/ts.worker.js', {
+  //       return new Worker('monaco-editor/esm/vs/language/typescript/ts.worker.js', {
   //         type: 'module',
   //       });
   //     }
-  //     return new Worker('/monaco-editor/esm/vs/editor/editor.worker.js', { type: 'module' });
+  //     return new Worker('monaco-editor/esm/vs/editor/editor.worker.js', { type: 'module' });
   //   },
   // },
 
