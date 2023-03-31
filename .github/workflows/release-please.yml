@@ -42,7 +42,8 @@ jobs:
           git push origin HEAD --force-with-lease
         if: ${{ steps.release.outputs.pr }}
 
-      - run: |
+      - name: Publish to npm
+        run: |
           npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
           npm publish --access public
         if: ${{ steps.release.outputs.release_created }}
