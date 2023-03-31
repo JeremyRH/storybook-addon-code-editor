@@ -45,6 +45,7 @@ node_modules/
 
 # Build directories
 dist/
+storybook-site/
 
 # TypeScript cache
 *.tsbuildinfo

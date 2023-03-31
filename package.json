@@ -1,7 +1,7 @@
 {
   "name": "storybook-addon-code-editor",
   "version": "2.0.1",
-  "description": "A Storybook add-on for live editing stories.",
+  "description": "A Storybook add-on for live editing stories. Supports React and TypeScript.",
   "repository": "https://github.com/JeremyRH/storybook-addon-code-editor.git",
   "author": "JeremyRH <holcomb227@gmail.com>",
   "license": "MIT",
@@ -15,7 +15,6 @@
   "types": "dist/es/index.d.ts",
   "scripts": {
     "build": "tsc --outDir dist/es --module esnext && tsc --outDir dist/cjs --module commonjs --declaration false",
-    "docs": "cd example && npm run build-storybook",
     "format": "prettier src example/src --write",
     "install-example-deps": "cd example && npm ci",
     "start": "npm run build && cd example && npm run storybook",

@@ -1,0 +1,39 @@
+on:
+  push:
+    branches:
+      - main
+
+name: release-please
+
+jobs:
+  release-please:
+    permissions:
+      contents: write
+      pull-requests: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: node
+          package-name: storybook-addon-code-editor
+          bootstrap-sha: a42654adbf47be1bf584784bd507061f2ae75038
+
+      - uses: actions/checkout@v3
+        if: ${{ steps.release.outputs.releases_created }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+        if: ${{ steps.release.outputs.releases_created }}
+
+      - name: Publish to npm
+        run: |
+          npm ci
+          npm run build
+          npm run test
+          npm config set //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
+          npm publish --access public
+        if: ${{ steps.release.outputs.releases_created }}

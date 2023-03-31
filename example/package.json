@@ -3,7 +3,7 @@
   "name": "example-library",
   "version": "0.0.0",
   "scripts": {
-    "build-storybook": "tsc -p tsconfig.build.json && build-storybook -o ../docs",
+    "build-storybook": "tsc -p tsconfig.build.json && build-storybook -o ../storybook-site",
     "storybook": "tsc -p tsconfig.build.json && start-storybook -p 6006 --no-manager-cache"
   },
   "peerDependencies": {

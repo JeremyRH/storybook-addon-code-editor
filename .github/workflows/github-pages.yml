@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - main
+
+name: github-pages
+
+jobs:
+  deploy:
+    permissions:
+      contents: read
+      id-token: write
+      pages: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: |
+          npm ci
+          npm run build
+          cd example
+          npm ci
+          npm run build-storybook
+
+      - uses: actions/upload-pages-artifact@v1
+        with:
+          path: storybook-site/
+
+      - uses: actions/deploy-pages@v2
