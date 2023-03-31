@@ -178,7 +178,7 @@ setupMonaco({
       ...
     },
   },
-  // onMonacoLoad is called when monaco is fist loaded and before an editor instance is created.
+  // onMonacoLoad is called when monaco is first loaded and before an editor instance is created.
   onMonacoLoad(monaco) {
     ...
   },
@@ -201,26 +201,14 @@ interface MonacoSetup {
 ### Install dependencies
 
 ```sh
-npm i
+npm install
+```
+
+### Run example
+
+```sh
 npm run install-example-deps
-```
-
-### See example
-
-```sh
 npm run start
-```
-
-### Build library
-
-```sh
-npm run build
-```
-
-### Build docs
-
-```sh
-npm run docs
 ```
 
 ### Run tests
@@ -233,6 +221,12 @@ npm run test
 
 ```sh
 npm run format
+```
+
+### Build library
+
+```sh
+npm run build
 ```
 
 ### Commits
