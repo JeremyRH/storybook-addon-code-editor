@@ -204,7 +204,7 @@ interface MonacoSetup {
 npm install
 ```
 
-### See example
+### Run example
 
 ```sh
 npm run install-example-deps
