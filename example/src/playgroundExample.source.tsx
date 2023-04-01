@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { Button } from 'example-library';
 import './playgroundExample.css';
 
-const hands = ['✊', '✋', '✌️'];
+const hands = [
+  { title: 'rock', children: '✊' },
+  { title: 'paper', children: '✋' },
+  { title: 'scissors', children: '✌️' },
+];
 
 function getRandomChoice() {
   return Math.floor(Math.random() * 3);
@@ -19,7 +23,7 @@ export default () => {
     return () => {
       const result = (choice - opponentChoice + 2) % 3;
       [setWins, setLosses, setTies][result]((c) => c + 1);
-      setPreviousChoice(hands[opponentChoice]);
+      setPreviousChoice(hands[opponentChoice].children);
       setOpponentChoice(getRandomChoice);
     };
   }
@@ -30,7 +34,7 @@ export default () => {
 
       <h2>
         <pre>
-          👍 {wins} | 👎 {losses} | 🤝 {ties}
+          Wins: {wins} | Losses: {losses} | Ties: {ties}
         </pre>
       </h2>
 
@@ -39,10 +43,9 @@ export default () => {
           onClick={onChoice(i)}
           backgroundColor="whitesmoke"
           className="button-nice"
-          key={hand}
-        >
-          {hand}
-        </Button>
+          key={hand.title}
+          {...hand}
+        />
       ))}
 
       {previousChoice && (
