@@ -94,6 +94,7 @@ import MyLibraryTypes from '../dist/types.d.ts?raw';
   availableImports={{ 'my-library': MyLibrary }}
   code={storyCode}
   height="560px"
+  id="unique id used to save edited code until the page is reloaded"
   modifyEditor={(monaco, editor) => {
     // editor docs: https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html
     // monaco docs: https://microsoft.github.io/monaco-editor/api/modules/monaco.html
@@ -122,6 +123,7 @@ interface PlaygroundProps {
   };
   code?: string;
   height?: string;
+  id?: string | number | symbol;
   modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
 }
 ```

@@ -60,13 +60,21 @@ export function createLiveEditStory(options: StoryState) {
   return story as typeof story & Story;
 }
 
+const savedCode: Record<PropertyKey, string> = {};
+
 export function Playground({
   availableImports,
-  code = '',
+  code,
   height = '200px',
+  id,
   ...editorProps
-}: Partial<StoryState> & { height?: string }) {
-  const [currentCode, setCurrentCode] = React.useState(code);
+}: Partial<StoryState> & { height?: string; id?: string }) {
+  let initialCode = code ?? '';
+  if (id !== undefined) {
+    savedCode[id] ??= initialCode;
+    initialCode = savedCode[id];
+  }
+  const [currentCode, setCurrentCode] = React.useState(initialCode);
   const errorBoundaryResetRef = React.useRef<() => void>();
   const fullCode = hasReactRegex.test(currentCode)
     ? currentCode
@@ -90,6 +98,9 @@ export function Playground({
         <Editor
           {...editorProps}
           onInput={(newCode) => {
+            if (id !== undefined) {
+              savedCode[id] = newCode;
+            }
             setCurrentCode(newCode);
             errorBoundaryResetRef.current?.();
           }}
