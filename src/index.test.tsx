@@ -67,6 +67,17 @@ describe('createLiveEditStory', () => {
     await screen.findByText('Hello');
   });
 
+  test("allows import React, { named } from 'react'", async () => {
+    const Story = createLiveEditStory({
+      code: `import React, { useState } from 'react';
+             export default () => <div>Hello</div>;`,
+    });
+
+    render(<Story />);
+
+    await screen.findByText('Hello');
+  });
+
   test('adds available imports', async () => {
     const Story = createLiveEditStory({
       availableImports: { a: { b: 'c' } },
