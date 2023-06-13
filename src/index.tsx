@@ -13,7 +13,7 @@ interface StoryState {
 }
 
 const store = createStore<StoryState>();
-const hasReactRegex = /import +(\* +as +)?React +from +['"]react['"]/;
+const hasReactRegex = /import\s+(\*\s+as\s+)?React[,\s]/;
 
 function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any }) {
   const [state, setState] = React.useState(store.getValue(storyId));
