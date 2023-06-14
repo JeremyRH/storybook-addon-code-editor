@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.1.0...v2.2.0) (2023-06-14)
+
+
+### Features
+
+* update dependencies ([4df6835](https://github.com/JeremyRH/storybook-addon-code-editor/commit/4df6835dc5af30e229f6a06b11d8325ddc1303af))
+
+
+### Bug Fixes
+
+* detect react import default and named ([bed3329](https://github.com/JeremyRH/storybook-addon-code-editor/commit/bed3329c05064dc7839f398749d3fd0f629598a1))
+* resolve package location without require.resolve ([b097d3f](https://github.com/JeremyRH/storybook-addon-code-editor/commit/b097d3f4079719a4c49eaea903657c399ac8886f))
+
 ## [2.1.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.0.2...v2.1.0) (2023-04-04)
 
 
