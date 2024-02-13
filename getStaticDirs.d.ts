@@ -1,2 +1,7 @@
-export declare function getCodeEditorStaticDirs(): { to: string; from: string }[];
-export declare function getExtraStaticDir(specifier: string): { to: string; from: string };
+type Resolver = (specifier: string, relativeToFile?: string) => { to: string; from: string };
+
+export declare function getCodeEditorStaticDirs(relativeToFile?: string): { to: string; from: string }[];
+export declare function getExtraStaticDir(
+  specifier: string,
+  relativeToFile?: string
+): { to: string; from: string };
