@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.2.0...v2.2.1) (2024-02-13)
+
+
+### Bug Fixes
+
+* make getStaticDirs work with yarn zero installs ([0daab18](https://github.com/JeremyRH/storybook-addon-code-editor/commit/0daab180298a7760e0a74a512985f72a5f1f327d))
+
 ## [2.2.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.1.0...v2.2.0) (2023-06-14)
 
 
