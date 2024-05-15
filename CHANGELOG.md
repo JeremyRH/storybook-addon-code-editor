@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.2.1...v2.2.2) (2024-05-15)
+
+
+### Bug Fixes
+
+* release-please output ([397d89b](https://github.com/JeremyRH/storybook-addon-code-editor/commit/397d89b760807aef5ee40e09860656e253115c48))
+* test creating release pr ([4127514](https://github.com/JeremyRH/storybook-addon-code-editor/commit/4127514b4bf23c6e4758228a769db2a81500a060))
+
 ## [2.2.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.2.0...v2.2.1) (2024-02-13)
 
 
