@@ -21,13 +21,13 @@ jobs:
           release-type: node
 
       - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
 
       - name: Publish to npm
         run: |
@@ -37,4 +37,4 @@ jobs:
           npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        if: ${{ steps.release.outputs.releases_created }}
+        if: ${{ steps.release.outputs.release_created }}
