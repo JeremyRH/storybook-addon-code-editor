@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.0.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.2.2...v3.0.0) (2024-05-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* update to storybook 8
+
+### Features
+
+* update to storybook 8 ([6946257](https://github.com/JeremyRH/storybook-addon-code-editor/commit/6946257e989ea361e28f1d0810a95c6c9ffc4074))
+
+
+### Bug Fixes
+
+* build ([2d43afa](https://github.com/JeremyRH/storybook-addon-code-editor/commit/2d43afaf28ad1cad075d2c624b9c4e32d5cfedf7))
+* build ([b60d6fb](https://github.com/JeremyRH/storybook-addon-code-editor/commit/b60d6fb18d942fe68642457cf4f62c45fa59d54f))
+* github pages deploy ([1584042](https://github.com/JeremyRH/storybook-addon-code-editor/commit/15840421a2b1500cf601fbdcc28e2f3c42503cb3))
+
 ## [2.2.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.2.1...v2.2.2) (2024-05-15)
 
 
