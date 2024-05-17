@@ -5,7 +5,28 @@
 
 ### ⚠ BREAKING CHANGES
 
-* update to storybook 8
+* Update to storybook 8
+* Drop support for StoryBook version 6 & 7.
+* Drop support for React 16. Use react/jsx-runtime for jsx.
+* `createLiveEditStory` changed to accept all story fields.
+```js
+// Before:
+export const StoryA = createLiveEditStory({ code: StoryASource });
+// Had to mutate the Story
+StoryA.args = { foo: 'foo' };
+```
+```js
+// After:
+export const StoryA = createLiveEditStory({
+  code: StoryASource,
+  args: { foo: 'foo' },
+});
+```
+
+* Remove automatic configuration for webpack.
+* [MDX updated](https://github.com/storybookjs/storybook/blob/ba69532715f162567cc17aa3a0de8ca918dfdd2c/MIGRATION.md#mdx-related-changes), some breaking changes.
+* Update TypeScript which may cause breaking changes in types.
+* Add package.json "exports" and "type: module".
 
 ### Features
 
