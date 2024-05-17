@@ -13,6 +13,6 @@ function exec(command) {
 }
 
 (async () => {
-  await Promise.all([exec('npm run build'), exec('npm pkg set version=0.0.0')]);
+  await exec('npm pkg set version=0.0.0');
   await exec('npm pack');
 })().finally(() => exec(`npm pkg set version=${pkgJson.version}`));

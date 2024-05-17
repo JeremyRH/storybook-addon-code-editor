@@ -37,9 +37,9 @@
     "getStaticDirs.d.ts"
   ],
   "scripts": {
-    "build": "node scripts/rm.js dist && tsc --outDir dist/es && babel src --out-dir dist/cjs --extensions '.ts,.tsx'",
+    "build": "node scripts/rm.js dist && tsc --outDir dist/es && babel src --out-dir dist/cjs --extensions '.ts,.tsx' && node scripts/npmPackDev.js",
     "format": "prettier src example/src --write",
-    "start:example": "node scripts/npmPackDev.js && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
+    "start:example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
     "test": "jest src"
   },
   "dependencies": {
