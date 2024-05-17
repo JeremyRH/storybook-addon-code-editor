@@ -1,21 +1,23 @@
+import type { Preview } from '@storybook/react';
 import { setupMonaco } from 'storybook-addon-code-editor';
+// @ts-ignore
 import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 
 // When customizing monaco-editor, setupMonaco needs to be called before any story loads.
-// .storybook/preview.js is probably the best place for this.
+// .storybook/preview.ts is probably the best place for this.
 
 setupMonaco({
   // This is an example of how to configure monaco-editor workers manually.
   // These worker files are not available by default. To add them:
 
-  /* in .storybook/main.js
+  /* in .storybook/main.ts
 
-  const {
+  import {
     getCodeEditorStaticDirs,
     getExtraStaticDir,
-  } = require('storybook-addon-code-editor/getStaticDirs');
+  } from 'storybook-addon-code-editor/getStaticDirs';
 
-  module.exports = {
+  const config: StorybookConfig = {
     staticDirs: [
       ...getCodeEditorStaticDirs(),
       getExtraStaticDir('monaco-editor/esm'),
@@ -55,12 +57,15 @@ setupMonaco({
   },
 });
 
-export const parameters = {
-  actions: { argTypesRegex: '^on[A-Z].*' },
-  controls: {
-    matchers: {
-      color: /(background|color)$/i,
-      date: /Date$/,
+const preview: Preview = {
+  parameters: {
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/i,
+      },
     },
   },
 };
+
+export default preview;

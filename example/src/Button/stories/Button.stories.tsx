@@ -1,14 +1,24 @@
+import type { Meta, StoryObj } from '@storybook/react';
 import { createLiveEditStory } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from '../../index';
 import ButtonJsSource from './editableStory.source.js?raw';
 import ButtonTsSource from './editableStory.source.tsx?raw';
 
-export default {
+// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
+const meta = {
   title: 'Stories/Button',
   component: ExampleLibrary.Button,
-};
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+} satisfies Meta<typeof ExampleLibrary.Button>;
 
-export const EditableStoryJSSource = createLiveEditStory({
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const EditableStoryJSSource = createLiveEditStory<Story>({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonJsSource,
   modifyEditor(monaco, editor) {
@@ -18,10 +28,8 @@ export const EditableStoryJSSource = createLiveEditStory({
     monaco.editor.setTheme('vs-light');
   },
 });
-// Make the default tab 'Story' instead of 'Docs'.
-EditableStoryJSSource.parameters.viewMode = 'story';
 
-export const EditableStoryTSSource = createLiveEditStory({
+export const EditableStoryTSSource = createLiveEditStory<Story>({
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonTsSource,
   modifyEditor(monaco, editor) {
@@ -33,9 +41,7 @@ export const EditableStoryTSSource = createLiveEditStory({
   },
 });
 
-EditableStoryTSSource.parameters.viewMode = 'story';
-
-export const EditableStoryWithControls = createLiveEditStory({
+export const EditableStoryWithControls = createLiveEditStory<Story>({
   availableImports: { 'example-library': ExampleLibrary },
   code: `
     import { Button } from 'example-library';
@@ -52,28 +58,18 @@ export const EditableStoryWithControls = createLiveEditStory({
     });
     monaco.editor.setTheme('vs-dark');
   },
+  args: {
+    backgroundColor: 'black',
+    children: 'Set this text in the controls tab',
+  },
 });
 
-EditableStoryWithControls.parameters.viewMode = 'story';
-
-// This story also has controls.
-EditableStoryWithControls.args = {
-  backgroundColor: 'black',
-  children: 'Set this text in the controls tab',
-};
-
-const nonEditableStoryArgs = {
-  backgroundColor: 'lightblue',
-  children: 'Use the controls tab to edit me',
-};
-
-export const NonEditableStory = (args: typeof nonEditableStoryArgs) => (
-  <ExampleLibrary.Button {...args} />
-);
-
-NonEditableStory.args = nonEditableStoryArgs;
-
-// Hide the code editor tab for this story.
-NonEditableStory.parameters = {
-  liveCodeEditor: { disable: true },
+export const nonEditableStoryArgs: Story = {
+  args: {
+    backgroundColor: 'lightblue',
+    children: 'Use the controls tab to edit me',
+  },
+  parameters: {
+    liveCodeEditor: { disable: true },
+  },
 };

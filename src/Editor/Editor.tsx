@@ -15,7 +15,7 @@ function loadMonacoEditor() {
   return (monacoPromise ||= Promise.all([monacoLoader(), reactTypesLoader()]).then(
     ([monaco, reactTypes]) => {
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-        jsx: 1,
+        jsx: monaco.languages.typescript.JsxEmit.Preserve,
       });
       monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
         noSemanticValidation: true,
@@ -25,14 +25,14 @@ function loadMonacoEditor() {
       if (reactTypes) {
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
           reactTypes,
-          'file:///node_modules/react/index.d.ts'
+          'file:///node_modules/react/index.d.ts',
         );
       }
 
       monacoSetup.onMonacoLoad?.(monaco);
 
       return monaco;
-    }
+    },
   ));
 }
 
@@ -125,6 +125,7 @@ export default function Editor(props: EditorProps) {
         resolveContainer(container);
       }}
       style={{ height: '100%' }}
+      className="sb-unstyled"
     />
   );
 }

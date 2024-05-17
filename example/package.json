@@ -3,30 +3,23 @@
   "name": "example-library",
   "version": "0.0.0",
   "scripts": {
-    "build-storybook": "tsc -p tsconfig.build.json && build-storybook -o ../storybook-site",
-    "storybook": "tsc -p tsconfig.build.json && start-storybook -p 6006 --no-manager-cache"
+    "storybook:build": "tsc -p tsconfig.build.json && storybook build -o ../storybook-site",
+    "storybook:dev": "tsc -p tsconfig.build.json && storybook dev -p 6006"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.5",
-    "@mdx-js/react": "^1.6.22",
-    "@storybook/addon-docs": "^6.5.16",
-    "@storybook/addon-essentials": "^6.5.16",
-    "@storybook/builder-webpack5": "^6.5.16",
-    "@storybook/manager-webpack5": "^6.5.16",
-    "@storybook/react": "^6.5.16",
-    "@types/react": "^17.0.39",
-    "raw-loader": "4.0.2",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "require-from-string": "^2.0.2",
-    "storybook-addon-code-editor": "file:../",
-    "typescript": "^4.9.5",
-    "webpack": "^5.75.0"
-  },
-  "overrides": {
-    "webpack": "^5.75.0"
+    "@storybook/addon-essentials": "^8.1.1",
+    "@storybook/blocks": "^8.1.1",
+    "@storybook/react": "^8.1.1",
+    "@storybook/react-vite": "^8.1.1",
+    "@types/react": "^18.3.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "react": "^18.3.1",
+    "storybook": "^8.1.0",
+    "storybook-addon-code-editor": "file:../storybook-addon-code-editor-0.0.0.tgz",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
   }
 }

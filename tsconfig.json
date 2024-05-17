@@ -5,15 +5,16 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
     "noEmitOnError": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2018"
+    "target": "ES2020"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.*"]
 }

@@ -4,7 +4,7 @@ export type EsModules = Record<string, Record<string, unknown>>;
 
 export function evalModule(
   moduleCode: string,
-  availableImports: EsModules
+  availableImports: EsModules,
 ): Record<string, unknown> {
   const { code } = transform(moduleCode, {
     filename: 'index.tsx',
