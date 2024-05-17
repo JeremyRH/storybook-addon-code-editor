@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { act } from 'react-dom/test-utils';
 import { createStore } from './createStore';
 import { createLiveEditStory, Playground, setupMonaco } from './index';
-import { getCodeEditorStaticDirs, getExtraStaticDir } from '../getStaticDirs';
+import { getCodeEditorStaticDirs, getExtraStaticDir } from './getStaticDirs';
 
 const originalConsoleError = console.error;
 
@@ -100,6 +99,15 @@ describe('createLiveEditStory', () => {
     await screen.findByText('b');
   });
 
+  test('assigns given properties to story', async () => {
+    const Story = createLiveEditStory({
+      code: 'export default (props) => <div>{props.a}</div>;',
+      args: { a: 'b' },
+    });
+
+    expect(Story.args).toEqual({ a: 'b' });
+  });
+
   test('recovers from syntax errors', async () => {
     const Story = createLiveEditStory({ code: '] this is not valid code [' });
 
@@ -107,10 +115,8 @@ describe('createLiveEditStory', () => {
 
     await screen.findByText('SyntaxError', { exact: false });
 
-    act(() => {
-      createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
-        code: 'export default () => <div>Hello</div>',
-      });
+    createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
+      code: 'export default () => <div>Hello</div>',
     });
 
     await screen.findByText('Hello');
@@ -123,10 +129,8 @@ describe('createLiveEditStory', () => {
 
     await screen.findByText("TypeError: Cannot read properties of undefined (reading 'defined')");
 
-    act(() => {
-      createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
-        code: 'export default () => <div>Hello</div>',
-      });
+    createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
+      code: 'export default () => <div>Hello</div>',
     });
 
     await screen.findByText('Hello');
@@ -144,10 +148,8 @@ describe('createLiveEditStory', () => {
 
     await screen.findByText("TypeError: Cannot read properties of undefined (reading 'defined')");
 
-    act(() => {
-      createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
-        code: 'export default () => <div>Hello</div>',
-      });
+    createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
+      code: 'export default () => <div>Hello</div>',
     });
 
     await screen.findByText('Hello');

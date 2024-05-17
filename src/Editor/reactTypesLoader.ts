@@ -3,6 +3,6 @@ export function reactTypesLoader() {
     (resp) => {
       return resp.text();
     },
-    () => {}
+    () => {},
   );
 }

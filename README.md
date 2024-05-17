@@ -4,7 +4,7 @@ A Storybook add-on for live editing stories. Supports React and TypeScript.
 
 [Demo](https://jeremyrh.github.io/storybook-addon-code-editor)
 
-[Usage example](./example)
+[Example code using this add-on](./example)
 
 ## Get started
 
@@ -14,22 +14,23 @@ Install as a dev dependency.
 npm install --save-dev storybook-addon-code-editor
 ```
 
-Add `storybook-addon-code-editor` in your `.storybook/main.js` file and add the `staticDirs`:
+Add `storybook-addon-code-editor` in your `.storybook/main.ts` file and ensure the `staticDirs`, `addons`, and `framework` fields contain the following:
 
-```js
-// .storybook/main.js
-const {
-  getCodeEditorStaticDirs
-} = require('storybook-addon-code-editor/getStaticDirs');
+```ts
+// .storybook/main.ts
+import type { StorybookConfig } from '@storybook/react-vite';
+import { getCodeEditorStaticDirs } from 'storybook-addon-code-editor/getStaticDirs';
 
-module.exports = {
-  addons: [
-    'storybook-addon-code-editor',
-    ...
-  ],
-  staticDirs: [
-    ...getCodeEditorStaticDirs(),
-    ...
+const config: StorybookConfig = {
+  staticDirs: [...getCodeEditorStaticDirs(__filename)],
+  addons: ['storybook-addon-code-editor'],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+};
+
+export default config;
 ```
 
 <details>
@@ -40,18 +41,19 @@ The editor ([monaco-editor](https://github.com/microsoft/monaco-editor)) require
 
 Additional static files can be added using the `getExtraStaticDir` helper from `storybook-addon-code-editor/getStaticDirs`:
 
-```js
-// .storybook/main.js
-const {
+```ts
+// .storybook/main.ts
+import {
   getCodeEditorStaticDirs,
   getExtraStaticDir,
-} = require('storybook-addon-code-editor/getStaticDirs');
+} from 'storybook-addon-code-editor/getStaticDirs';
 
-module.exports = {
+const config: StorybookConfig =  {
   staticDirs: [
     ...getCodeEditorStaticDirs(),
-    getExtraStaticDir('monaco-editor/esm'), // hosted at: monaco-editor/esm
-    ...
+
+    // files will be available at: /monaco-editor/esm/*
+    getExtraStaticDir('monaco-editor/esm'),
 ```
 
 </details>
@@ -60,10 +62,7 @@ module.exports = {
 
 **Important:**
 
-The default Webpack 4 builder does not work with `storybook-addon-code-editor`.
-Please use one of the following:
-- [`@storybook/builder-webpack5`](https://github.com/storybookjs/storybook/blob/65dd683883a884e6e31a2e84b0054b0e260078a0/lib/builder-webpack5/README.md)
-- [`@storybook/builder-vite`](https://github.com/storybookjs/builder-vite)
+`@storybook/react-vite` is the only supported framework at this time.
 
 <br />
 
@@ -71,7 +70,7 @@ Please use one of the following:
 
 ### `Playground`
 
-Use the `Playground` component in [MDX format](https://storybook.js.org/docs/react/api/mdx).
+Use the `Playground` component in [MDX format](https://storybook.js.org/docs/writing-docs/mdx).
 
 ```jsx
 // MyComponent.stories.mdx
@@ -88,6 +87,11 @@ import { Playground } from 'storybook-addon-code-editor';
 import { Playground } from 'storybook-addon-code-editor';
 import * as MyLibrary from './index';
 import storyCode from './MyStory.source.tsx?raw';
+
+// TypeScript might complain about not finding this import or
+// importing things from .d.ts files wihtout `import type`.
+// Ignore this, we need the string contents of this file.
+// @ts-ignore
 import MyLibraryTypes from '../dist/types.d.ts?raw';
 
 <Playground
@@ -135,13 +139,22 @@ React TypeScript definitions will be automatically loaded if `@types/react` is a
 
 Use the `createLiveEditStory` function in traditional stories:
 
-```js
-// MyComponent.stories.js
+```ts
+// MyComponent.stories.ts
+import type { Meta, StoryObj } from '@storybook/react';
 import { createLiveEditStory } from 'storybook-addon-code-editor';
 import * as MyLibrary from './index';
 import storyCode from './MyStory.source.tsx?raw';
 
-export const MyStory = createLiveEditStory({
+const meta = {
+  // Story defaults
+} satisfies Meta<typeof MyLibrary.MyComponent>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const MyStory = createLiveEditStory<Story>({
   availableImports: { 'my-library': MyLibrary },
   code: storyCode,
 });
@@ -158,6 +171,7 @@ interface LiveEditStoryOptions {
   };
   code: string;
   modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
+  // Any other Storybook story options, e.g. `args`, `parameters`, etc..
 }
 ```
 
@@ -165,12 +179,12 @@ interface LiveEditStoryOptions {
 
 `setupMonaco` allows customization of [`monaco-editor`](https://github.com/microsoft/monaco-editor).
 
-Use this in your `.storybook/preview.js` to add type definitions or integrations.
+Use this in your `.storybook/preview.ts` to add type definitions or integrations.
 
 Check out [examples of `monaco-editor`](https://github.com/microsoft/monaco-editor/tree/ae158a25246af016a0c56e2b47df83bd4b1c2426/samples) with different configurations.
 
-```js
-// .storybook/preview.js
+```ts
+// .storybook/preview.ts
 import { setupMonaco } from 'storybook-addon-code-editor';
 
 setupMonaco({
@@ -209,9 +223,11 @@ npm install
 ### Run example
 
 ```sh
-npm run install-example-deps
-npm run start
+cd example && npm install && cd ..
+npm run start:example
 ```
+
+When making changes to the library, the server needs to be manually restarted.
 
 ### Run tests
 

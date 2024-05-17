@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 interface ErrorBoundaryProps {
   resetRef: React.MutableRefObject<(() => void) | undefined>;

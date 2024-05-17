@@ -1,4 +1,3 @@
-import type { Story } from '@storybook/api';
 import * as React from 'react';
 import { createStore } from './createStore';
 import Editor from './Editor/Editor';
@@ -6,7 +5,7 @@ import ErrorBoundary from './ErrorBoundary';
 import Preview from './Preview';
 export { setupMonaco } from './Editor/setupMonaco';
 
-interface StoryState {
+export interface StoryState {
   code: string;
   availableImports?: Record<string, Record<string, unknown>>;
   modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
@@ -40,24 +39,38 @@ function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any 
   );
 }
 
-export function createLiveEditStory(options: StoryState) {
+export function createLiveEditStory<T extends Record<string, unknown>>({
+  code,
+  availableImports,
+  modifyEditor,
+  ...options
+}: T & StoryState) {
   const id = `id_${Math.random()}`;
 
-  store.setValue(id, options);
+  store.setValue(id, { code, availableImports, modifyEditor, ...options });
 
-  const story = (storyArgs: any) => <LivePreview storyId={id} storyArgs={storyArgs} />;
+  const parameters = options.parameters as undefined | Record<string, any>;
 
-  story.parameters = {
-    liveCodeEditor: {
-      disable: false,
-      id,
+  const story = (props: any) => <LivePreview storyId={id} storyArgs={props} />;
+
+  return Object.assign(story, {
+    ...options,
+    parameters: {
+      ...parameters,
+      liveCodeEditor: {
+        disable: false,
+        ...parameters?.liveCodeEditor,
+        id,
+      },
+      docs: {
+        ...parameters?.docs,
+        source: {
+          ...parameters?.docs?.source,
+          transform: (code: string) => store.getValue(id)?.code ?? code,
+        },
+      },
     },
-    docs: {
-      transformSource: (code: string) => store.getValue(id)?.code ?? code,
-    },
-  };
-
-  return story as typeof story & Story;
+  });
 }
 
 const savedCode: Record<PropertyKey, string> = {};

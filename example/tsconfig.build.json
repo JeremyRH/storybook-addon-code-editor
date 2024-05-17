@@ -5,7 +5,7 @@
     "isolatedModules": false,
     // "module": "AMD" produces a single .d.ts file for the whole library.
     "module": "AMD",
-    "moduleResolution": "Node",
+    "moduleResolution": "Node10",
     "outFile": "dist/types"
   },
   "include": ["src"],

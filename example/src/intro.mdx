@@ -1,0 +1,144 @@
+import { Meta } from '@storybook/blocks';
+import { Playground } from 'storybook-addon-code-editor';
+import * as ExampleLibrary from './index';
+import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
+import './playgroundExample.css';
+
+<Meta
+  title="MDX Page"
+  parameters={{
+    viewMode: 'docs',
+    previewTabs: { canvas: { hidden: true } },
+  }}
+/>
+
+# storybook-addon-code-editor
+
+A Storybook add-on for live editing stories. Supports React and TypeScript.
+
+<a href="https://github.com/JeremyRH/storybook-addon-code-editor" target="_blank">
+  View on GitHub
+</a>
+
+## Get started
+
+Install as a dev dependency.
+
+```sh
+npm install --save-dev storybook-addon-code-editor
+```
+
+Add `storybook-addon-code-editor` in your `.storybook/main.ts` file and ensure the `staticDirs`, `addons`, and `framework` fields contain the following:
+
+```ts
+// .storybook/main.ts
+import type { StorybookConfig } from '@storybook/react-vite';
+import { getCodeEditorStaticDirs } from 'storybook-addon-code-editor/getStaticDirs';
+
+const config: StorybookConfig = {
+  staticDirs: [...getCodeEditorStaticDirs(__filename)],
+  addons: ['storybook-addon-code-editor'],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+};
+
+export default config;
+```
+
+<details>
+<summary>About `staticDirs`</summary>
+
+`staticDirs` sets a list of directories of static files to be loaded by Storybook.
+The editor ([monaco-editor](https://github.com/microsoft/monaco-editor)) requires these extra static files to be available at runtime.
+
+Additional static files can be added using the `getExtraStaticDir` helper from `storybook-addon-code-editor/getStaticDirs`:
+
+```ts
+// .storybook/main.ts
+import {
+  getCodeEditorStaticDirs,
+  getExtraStaticDir,
+} from 'storybook-addon-code-editor/getStaticDirs';
+
+const config: StorybookConfig =  {
+  staticDirs: [
+    ...getCodeEditorStaticDirs(),
+
+    // files will be available at: /monaco-editor/esm/*
+    getExtraStaticDir('monaco-editor/esm'),
+```
+
+</details>
+
+<br />
+
+**Important:**
+
+`@storybook/react-vite` is the only supported framework at this time.
+
+<br />
+
+## Showcase
+
+{(() => {
+  const code = 'export default () => <h1>Simple example</h1>;';
+  return (
+    <Playground
+      code={`
+/\* MDX:
+import { Playground } from 'storybook-addon-code-editor';
+<Playground code="${code}" />
+*/
+${code}
+      `.trim()}
+    />
+  );
+})()}
+
+---
+
+{(() => {
+  const code = `
+/\* MDX:
+import { Playground } from 'storybook-addon-code-editor';
+import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
+import './playgroundExample.css';
+
+<Playground
+  code={PlaygroundExampleCode}
+  availableImports={{
+    'example-library': ExampleLibrary,
+    './playgroundExample.css': {},
+  }}
+  height="560px"
+  id="complex example" // used to save the editor state until a page reload
+  modifyEditor={(monaco, editor) => {
+    monaco.editor.setTheme('vs-dark');
+  }}
+/>
+*/
+${PlaygroundExampleCode}
+  `.trim();
+  return (
+    <Playground
+      code={code}
+      availableImports={{
+        'example-library': ExampleLibrary,
+        './playgroundExample.css': {},
+      }}
+      height="560px"
+      id="complex example" // used to save the editor state until a page reload
+      modifyEditor={(monaco, editor) => {
+        monaco.editor.setTheme('vs-dark');
+      }}
+    />
+  );
+})()}
+
+<br />
+
+<a href="https://github.com/JeremyRH/storybook-addon-code-editor/tree/main/example" target="_blank">
+  See this /example directory for additional usage.
+</a>
