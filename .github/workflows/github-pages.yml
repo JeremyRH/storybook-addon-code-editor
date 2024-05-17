@@ -23,10 +23,7 @@ jobs:
 
       - run: |
           npm ci
-          npm run build
-          cd example
-          npm ci
-          npm run storybook:build
+          npm run build:example
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -223,7 +223,6 @@ npm install
 ### Run example
 
 ```sh
-cd example && npm install && cd ..
 npm run start:example
 ```
 
