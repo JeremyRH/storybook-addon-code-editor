@@ -10,16 +10,16 @@
     "react": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^8.1.1",
-    "@storybook/blocks": "^8.1.1",
-    "@storybook/react": "^8.1.1",
-    "@storybook/react-vite": "^8.1.1",
-    "@types/react": "^18.3.2",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@storybook/addon-essentials": "^8.1.6",
+    "@storybook/blocks": "^8.1.6",
+    "@storybook/react": "^8.1.6",
+    "@storybook/react-vite": "^8.1.6",
+    "@types/react": "^18.3.3",
+    "@vitejs/plugin-react": "^4.3.1",
     "react": "^18.3.1",
-    "storybook": "^8.1.0",
+    "storybook": "^8.1.6",
     "storybook-addon-code-editor": "file:../storybook-addon-code-editor-0.0.0.tgz",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.13"
   }
 }
