@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.0...v3.0.1) (2024-06-12)
+
+
+### Bug Fixes
+
+* use os path separator for windows support ([bb2d73a](https://github.com/JeremyRH/storybook-addon-code-editor/commit/bb2d73a1c7849582d0d82e31bb6acd73d30f17c7))
+
 ## [3.0.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v2.2.2...v3.0.0) (2024-05-17)
 
 
