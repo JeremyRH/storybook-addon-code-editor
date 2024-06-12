@@ -28,19 +28,19 @@ function resolvePackagePath(reqFn: NodeRequire, packageName: string) {
   let result: string | undefined;
   try {
     const packageEntryFile = resolve(reqFn, packageName);
-    const namePosition = packageEntryFile.indexOf(`/${packageName}/`);
+    const namePosition = packageEntryFile.indexOf(`${path.sep}${packageName}${path.sep}`);
     if (namePosition === -1) {
       error = new Error(
         `Cannot resolve package path for: '${packageName}'.\nEntry file: ${packageEntryFile}`,
       );
     } else {
-      result = `${packageEntryFile.slice(0, namePosition)}/${packageName}/`;
+      result = `${packageEntryFile.slice(0, namePosition)}${path.sep}${packageName}${path.sep}`;
     }
   } catch (err: any) {
     // Sometimes the require function can't find the entry file but knows the path.
     result =
       /Source path: (.+)/.exec(err?.message)?.[1] ||
-      /main defined in (.+?)\/package\.json/.exec(err?.message)?.[1];
+      /main defined in (.+?)[\\/]package\.json/.exec(err?.message)?.[1];
     if (!result) {
       error = err;
     }
@@ -52,16 +52,18 @@ function resolvePackagePath(reqFn: NodeRequire, packageName: string) {
 }
 
 export function getExtraStaticDir(specifier: string, relativeToFile = filename) {
-  const [pn1, pn2, ...pathParts] = specifier.split('/');
-  const isScopedPackage = !!(specifier.startsWith('@') && pn2);
-  const packageName = isScopedPackage ? `${pn1}/${pn2}` : pn1;
-  const dirPath = (isScopedPackage ? pathParts : [pn2, ...pathParts]).join('/');
+  const specifierParts = specifier.split('/');
+  const isScopedPackage = specifier.startsWith('@') && !!specifierParts[1];
+  const pathParts = isScopedPackage ? specifierParts.slice(2) : specifierParts.slice(1);
+  const packageName = isScopedPackage
+    ? `${specifierParts[0]}/${specifierParts[1]}`
+    : specifierParts[0];
   const require = createRequire(relativeToFile);
   const packageDir = resolvePackagePath(require, packageName);
 
   return {
-    from: path.join(packageDir, dirPath),
-    to: path.posix.join(packageName, dirPath),
+    from: path.join(packageDir, ...pathParts),
+    to: specifier,
   };
 }
 
