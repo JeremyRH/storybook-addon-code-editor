@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createStore } from './createStore';
-import Editor from './Editor/Editor';
+import Editor, { EditorOptions } from './Editor/Editor';
 import ErrorBoundary from './ErrorBoundary';
 import Preview from './Preview';
 export { setupMonaco } from './Editor/setupMonaco';
@@ -9,6 +9,7 @@ export interface StoryState {
   code: string;
   availableImports?: Record<string, Record<string, unknown>>;
   modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
+  editorOptions?: EditorOptions;
 }
 
 const store = createStore<StoryState>();
@@ -80,8 +81,14 @@ export function Playground({
   code,
   height = '200px',
   id,
+  wrappingComponent: WrappingComponent,
   ...editorProps
-}: Partial<StoryState> & { height?: string; id?: string }) {
+}: Partial<StoryState> & {
+  height?: string;
+  id?: string;
+  wrappingComponent?: React.JSXElementConstructor<{ children: React.ReactNode }>;
+}) {
+  console.log(editorProps);
   let initialCode = code ?? '';
   if (id !== undefined) {
     savedCode[id] ??= initialCode;
@@ -93,11 +100,15 @@ export function Playground({
     ? currentCode
     : "import * as React from 'react';" + currentCode;
 
+  const preview = (
+    <Preview availableImports={{ react: React, ...availableImports }} code={fullCode} />
+  );
+
   return (
     <div style={{ border: '1px solid #bebebe' }}>
       <div style={{ margin: '16px 16px 0 16px', overflow: 'auto', paddingBottom: '16px' }}>
         <ErrorBoundary resetRef={errorBoundaryResetRef}>
-          <Preview availableImports={{ react: React, ...availableImports }} code={fullCode} />
+          {WrappingComponent ? <WrappingComponent>{preview}</WrappingComponent> : preview}
         </ErrorBoundary>
       </div>
       <div
