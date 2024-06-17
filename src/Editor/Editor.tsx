@@ -7,6 +7,8 @@ import { getMonacoSetup } from './setupMonaco';
 
 let monacoPromise: Promise<typeof Monaco> | undefined;
 
+export type EditorOptions = Monaco.editor.IEditorOptions;
+
 function loadMonacoEditor() {
   const monacoSetup = getMonacoSetup();
 
@@ -38,7 +40,12 @@ function loadMonacoEditor() {
 
 let fileCount = 1;
 
-function createEditor(monaco: typeof Monaco, code: string, container: HTMLElement) {
+function createEditor(
+  monaco: typeof Monaco,
+  code: string,
+  container: HTMLElement,
+  editorOptions?: EditorOptions,
+) {
   const uri = monaco.Uri.parse(`file:///index${fileCount++}.tsx`);
 
   return monaco.editor.create(container, {
@@ -47,6 +54,7 @@ function createEditor(monaco: typeof Monaco, code: string, container: HTMLElemen
     model: monaco.editor.createModel(code, 'typescript', uri),
     overflowWidgetsDomNode: getMonacoOverflowContainer('monacoOverflowContainer'),
     tabSize: 2,
+    ...editorOptions,
   });
 }
 
@@ -55,6 +63,7 @@ interface EditorProps {
   value: string;
   modifyEditor?: (monaco: typeof Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
   parentSize?: string;
+  editorOptions?: EditorOptions;
 }
 
 interface EditorState {
@@ -76,7 +85,7 @@ export default function Editor(props: EditorProps) {
 
     Promise.all([containerPromise, loadMonacoEditor()]).then(([editorContainer, monaco]) => {
       stateRef.monaco = monaco;
-      stateRef.editor = createEditor(monaco, props.value, editorContainer);
+      stateRef.editor = createEditor(monaco, props.value, editorContainer, props.editorOptions);
 
       stateRef.editor.onDidChangeModelContent(() => {
         const currentValue = stateRef.editor?.getValue();

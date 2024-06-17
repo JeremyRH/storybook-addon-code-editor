@@ -100,6 +100,29 @@ ${code}
 ---
 
 {(() => {
+  const code = `export default () => (
+  <h1 style={{ background: "#FFF", borderRadius: "8px", padding: "8px" }}>
+    Wrapped in a custom component with editor options (no minimap)
+  </h1>
+);`;
+  return (
+    <Playground
+      editorOptions={{minimap: { enabled: false}}}
+      wrappingComponent={(props) => (<div style={{background: "#EEE", padding: "20px"}}>{props.children}</div>)}
+      code={`
+/\* MDX:
+import { Playground } from 'storybook-addon-code-editor';
+<Playground code="${code}" />
+*/
+${code}
+      `.trim()}
+    />
+  );
+})()}
+
+---
+
+{(() => {
   const code = `
 /\* MDX:
 import { Playground } from 'storybook-addon-code-editor';
