@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.1...v3.0.2) (2024-06-24)
+
+
+### Bug Fixes
+
+* iframed storybook sites fail due to window.top access ([02f8255](https://github.com/JeremyRH/storybook-addon-code-editor/commit/02f825557e20dc6e77aa13464b8246d4ef7e1c39))
+
 ## [3.0.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.0...v3.0.1) (2024-06-12)
 
 
