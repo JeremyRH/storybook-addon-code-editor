@@ -48,5 +48,12 @@ function newKeyStore<T>(): KeyStore<T> {
 }
 
 export function createStore<T>(): KeyStore<T> {
-  return ((window.top as any)._addon_code_editor_store ||= newKeyStore());
+  try {
+    return ((window.top as any)._addon_code_editor_store ||= newKeyStore());
+  } catch {
+    // Storybook sites can be embedded in iframes. Using window.top will fail in that case.
+    // Try window.parent as a fallback. This can break if Storybook changes how previews are rendered.
+    // TODO: Use Storybook Channels to communicate between the manager and preview.
+    return ((window.parent as any)._addon_code_editor_store ||= newKeyStore());
+  }
 }
