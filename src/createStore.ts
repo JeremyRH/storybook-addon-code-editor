@@ -1,3 +1,8 @@
+// This provides shared state and the ability to subscribe to changes
+// between the manager and preview iframes.
+// Attempted to use Storybook's `addons.getChannel()` but it doesn't emit
+// across iframes.
+
 type Callback<T> = (newValue: T) => any;
 
 interface Store<T> {
@@ -48,12 +53,12 @@ function newKeyStore<T>(): KeyStore<T> {
 }
 
 export function createStore<T>(): KeyStore<T> {
+  const getStore = (managerWindow: any) =>
+    (managerWindow._addon_code_editor_store ||= newKeyStore());
   try {
-    return ((window.top as any)._addon_code_editor_store ||= newKeyStore());
+    // This will throw in the manager if the storybook site is in an iframe.
+    return getStore(window.parent);
   } catch {
-    // Storybook sites can be embedded in iframes. Using window.top will fail in that case.
-    // Try window.parent as a fallback. This can break if Storybook changes how previews are rendered.
-    // TODO: Use Storybook Channels to communicate between the manager and preview.
-    return ((window.parent as any)._addon_code_editor_store ||= newKeyStore());
+    return getStore(window);
   }
 }
