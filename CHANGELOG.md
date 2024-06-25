@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.2...v3.0.3) (2024-06-25)
+
+
+### Bug Fixes
+
+* only use window.parent and fall back to window to prevent manager from throwing ([cc48522](https://github.com/JeremyRH/storybook-addon-code-editor/commit/cc485224cf059086be21a9c9ab5d45f95e7b82a3))
+
 ## [3.0.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.1...v3.0.2) (2024-06-24)
 
 
