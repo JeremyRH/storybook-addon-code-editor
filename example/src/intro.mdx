@@ -105,14 +105,24 @@ ${code}
     Wrapped in a custom component with editor options (no minimap)
   </h1>
 );`;
+  const Wrapper = (props) => (
+    <div style={{ background: '#EEE', padding: '10px' }}>{props.children}</div>
+  );
   return (
     <Playground
-      editorOptions={{minimap: { enabled: false}}}
-      wrappingComponent={(props) => (<div style={{background: "#EEE", padding: "20px"}}>{props.children}</div>)}
+      defaultEditorOptions={{minimap: { enabled: false }}}
+      WrappingComponent={Wrapper}
       code={`
 /\* MDX:
 import { Playground } from 'storybook-addon-code-editor';
-<Playground code="${code}" />
+const Wrapper = (props) => (
+  <div style={{ background: '#EEE', padding: '10px' }}>{props.children}</div>
+);
+<Playground
+  defaultEditorOptions={{minimap: { enabled: false }}}
+  WrappingComponent={Wrapper}
+  code="${code}"
+/>
 */
 ${code}
       `.trim()}

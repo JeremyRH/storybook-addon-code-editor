@@ -86,8 +86,8 @@ import { Playground } from 'storybook-addon-code-editor'
 import { Playground } from 'storybook-addon-code-editor';
 
 <Playground
-  editorOptions={{ minimap: { enabled: false } }}
-  wrappingComponent={(props) => (
+  defaultEditorOptions={{ minimap: { enabled: false } }}
+  WrappingComponent={(props) => (
     <div style={{ background: '#EEE', padding: '10px' }}>{props.children}</div>
   )}
   code="export default () => <h1>Hello</h1>;"
