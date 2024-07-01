@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.1.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.3...v3.1.0) (2024-07-01)
+
+
+### Features
+
+* add editor options and wrapping component prop ([5d47fd8](https://github.com/JeremyRH/storybook-addon-code-editor/commit/5d47fd8048684b99dde98d38f4c1501bee3a025d))
+
+
+### Bug Fixes
+
+* implement pr feedback ([58dc909](https://github.com/JeremyRH/storybook-addon-code-editor/commit/58dc90928c4f8d3fe97cfdb978e76c1afd8fa3ce))
+
 ## [3.0.3](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.2...v3.0.3) (2024-06-25)
 
 
