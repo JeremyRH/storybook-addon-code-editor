@@ -9,7 +9,7 @@ export interface StoryState {
   code: string;
   availableImports?: Record<string, Record<string, unknown>>;
   modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
-  editorOptions?: EditorOptions;
+  defaultEditorOptions?: EditorOptions;
 }
 
 const store = createStore<StoryState>();
@@ -81,14 +81,13 @@ export function Playground({
   code,
   height = '200px',
   id,
-  wrappingComponent: WrappingComponent,
+  WrappingComponent: WrappingComponent,
   ...editorProps
 }: Partial<StoryState> & {
   height?: string;
   id?: string;
-  wrappingComponent?: React.JSXElementConstructor<{ children: React.ReactNode }>;
+  WrappingComponent?: React.ComponentType<{ children: React.ReactNode }>;
 }) {
-  console.log(editorProps);
   let initialCode = code ?? '';
   if (id !== undefined) {
     savedCode[id] ??= initialCode;
