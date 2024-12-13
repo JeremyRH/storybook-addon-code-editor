@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.2.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.1.0...v3.2.0) (2024-12-13)
+
+
+### Features
+
+* update dependencies ([5005935](https://github.com/JeremyRH/storybook-addon-code-editor/commit/50059352e1e9b10c3982377c6cb8990fd3bf7d6d))
+
+
+### Bug Fixes
+
+* combine post-build scripts ([8ba7432](https://github.com/JeremyRH/storybook-addon-code-editor/commit/8ba743218a16afba0b27f82743a79aca3e84a2e5))
+* Node 22.12 error with cjs imports ([6c8719c](https://github.com/JeremyRH/storybook-addon-code-editor/commit/6c8719c1ea62d89e9cea78447425c6f3128fcf41))
+* remove top-level getStaticDirs and only rely on package.json exports ([31dc7a4](https://github.com/JeremyRH/storybook-addon-code-editor/commit/31dc7a4e85389fbf88805e001cf70cec095a1e2f))
+
 ## [3.1.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.0.3...v3.1.0) (2024-07-01)
 
 
