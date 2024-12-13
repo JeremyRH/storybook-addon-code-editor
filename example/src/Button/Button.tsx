@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { type JSX } from 'react/jsx-runtime';
 
 type ButtonProps = JSX.IntrinsicElements['button'] & {
   backgroundColor?: string;
