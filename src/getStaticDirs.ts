@@ -5,7 +5,8 @@ import path from 'node:path';
 // CommonJS and ES module. `import.meta.filename` is a syntax error in CommonJS and `__filename`
 // is not available in ES modules. We can't use `import.meta.url` at all so we need a workaround.
 function getFileNameFromStack() {
-  const fullPathRegex = /(?:[a-zA-Z]:)?[\\/].*[\\/]getStaticDirs\..*?(?=:)/;
+  const isWindows = process.platform === 'win32';
+  const fullPathRegex =  isWindows ? /[a-zA-Z]:\\.*\\getStaticDirs\.[cm]?js/ : /\/.*\/getStaticDirs\.[cm]?js/;
   const match = fullPathRegex.exec(new Error().stack || '');
   if (!match) {
     throw new Error('Could not get the file path of storybook-addon-code-editor/getStaticDirs');
