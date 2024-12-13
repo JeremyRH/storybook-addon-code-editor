@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { type JSX } from 'react/jsx-runtime';
 
 type InputProps = JSX.IntrinsicElements['input'] & {
   error?: string;

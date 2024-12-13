@@ -14,10 +14,11 @@ export interface StoryState {
 
 const store = createStore<StoryState>();
 const hasReactRegex = /import\s+(\*\s+as\s+)?React[,\s]/;
+const noop = () => {};
 
 function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any }) {
   const [state, setState] = React.useState(store.getValue(storyId));
-  const errorBoundaryResetRef = React.useRef<() => void>();
+  const errorBoundaryResetRef = React.useRef(noop);
   const fullCode = hasReactRegex.test(state!.code)
     ? state!.code
     : "import * as React from 'react';" + state!.code;
@@ -25,7 +26,7 @@ function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any 
   React.useEffect(() => {
     return store.onChange(storyId, (newState) => {
       setState(newState);
-      errorBoundaryResetRef.current?.();
+      errorBoundaryResetRef.current();
     });
   }, [storyId]);
 
@@ -94,7 +95,7 @@ export function Playground({
     initialCode = savedCode[id];
   }
   const [currentCode, setCurrentCode] = React.useState(initialCode);
-  const errorBoundaryResetRef = React.useRef<() => void>();
+  const errorBoundaryResetRef = React.useRef(noop);
   const fullCode = hasReactRegex.test(currentCode)
     ? currentCode
     : "import * as React from 'react';" + currentCode;
@@ -125,7 +126,7 @@ export function Playground({
               savedCode[id] = newCode;
             }
             setCurrentCode(newCode);
-            errorBoundaryResetRef.current?.();
+            errorBoundaryResetRef.current();
           }}
           value={currentCode}
         />
