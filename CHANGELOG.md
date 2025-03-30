@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.0.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.2.0...v4.0.0) (2025-03-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* Replace Playground wrapping component with Container. This breaking change allows complete control of the Playground style.
+
+### Features
+
+* Hide code editor panel tab if no story editor id is found (indicating createLiveEditStory was not used). ([3f1799e](https://github.com/JeremyRH/storybook-addon-code-editor/commit/3f1799e6dd479edd545c7ffd4bb603e4d9aedc1b))
+* Replace Playground wrapping component with Container. This breaking change allows complete control of the Playground style. ([a8bcaea](https://github.com/JeremyRH/storybook-addon-code-editor/commit/a8bcaeaf24ff02c2741d378472407bfeb258d4e9))
+* Update all deps to latest. Replace jest with vitest and babel with tsc. ([c055c92](https://github.com/JeremyRH/storybook-addon-code-editor/commit/c055c926848e6dabada0caa0b5a49b41db558e70))
+
+
+### Bug Fixes
+
+* Support React 19. ([c1c2026](https://github.com/JeremyRH/storybook-addon-code-editor/commit/c1c20262baeee7f202e202e1820d797080d05490))
+
 ## [3.2.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.1.0...v3.2.0) (2024-12-13)
 
 
