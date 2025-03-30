@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
+import { afterEach, describe, expect, test } from 'vitest';
 import { createStore } from './createStore';
-import { createLiveEditStory, Playground, setupMonaco } from './index';
 import { getCodeEditorStaticDirs, getExtraStaticDir } from './getStaticDirs';
+import { createLiveEditStory, Playground, setupMonaco } from './index';
 
 const originalConsoleError = console.error;
 
@@ -90,9 +91,7 @@ describe('createLiveEditStory', () => {
   });
 
   test('passes props to evaluated component', async () => {
-    const Story = createLiveEditStory({
-      code: 'export default (props) => <div>{props.a}</div>;',
-    });
+    const Story = createLiveEditStory({ code: 'export default (props) => <div>{props.a}</div>;' });
 
     render(<Story a="b" />);
 
@@ -187,7 +186,7 @@ describe('getExtraStaticDir', () => {
   });
 
   test('returns an object', () => {
-    const result = getExtraStaticDir('jest');
+    const result = getExtraStaticDir('typescript');
     expect(typeof result.to).toBe('string');
     expect(typeof result.from).toBe('string');
   });
