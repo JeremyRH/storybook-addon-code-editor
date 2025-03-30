@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { EsModules, evalModule } from './evalModule';
 
 interface PreviewProps {
