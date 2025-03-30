@@ -10,6 +10,7 @@ export interface StoryState {
   availableImports?: Record<string, Record<string, unknown>>;
   modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
   defaultEditorOptions?: EditorOptions;
+  parameters?: Record<string, unknown>;
 }
 
 const store = createStore<StoryState>();
@@ -41,12 +42,12 @@ function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any 
   );
 }
 
-export function createLiveEditStory<T extends Record<string, unknown>>({
+export function createLiveEditStory<T>({
   code,
   availableImports,
   modifyEditor,
   ...options
-}: T & StoryState) {
+}: StoryState & T) {
   const id = `id_${Math.random()}`;
 
   store.setValue(id, { code, availableImports, modifyEditor, ...options });
@@ -59,11 +60,7 @@ export function createLiveEditStory<T extends Record<string, unknown>>({
     ...options,
     parameters: {
       ...parameters,
-      liveCodeEditor: {
-        disable: false,
-        ...parameters?.liveCodeEditor,
-        id,
-      },
+      liveCodeEditor: { disable: false, ...parameters?.liveCodeEditor, id },
       docs: {
         ...parameters?.docs,
         source: {
@@ -82,12 +79,12 @@ export function Playground({
   code,
   height = '200px',
   id,
-  WrappingComponent: WrappingComponent,
+  Container,
   ...editorProps
 }: Partial<StoryState> & {
   height?: string;
   id?: string;
-  WrappingComponent?: React.ComponentType<{ children: React.ReactNode }>;
+  Container?: React.ComponentType<{ editor: React.ReactNode; preview: React.ReactNode }>;
 }) {
   let initialCode = code ?? '';
   if (id !== undefined) {
@@ -100,36 +97,35 @@ export function Playground({
     ? currentCode
     : "import * as React from 'react';" + currentCode;
 
-  const preview = (
-    <Preview availableImports={{ react: React, ...availableImports }} code={fullCode} />
+  const editor = (
+    <Editor
+      {...editorProps}
+      onInput={(newCode) => {
+        if (id !== undefined) {
+          savedCode[id] = newCode;
+        }
+        setCurrentCode(newCode);
+        errorBoundaryResetRef.current();
+      }}
+      value={currentCode}
+    />
   );
 
-  return (
+  const preview = (
+    <ErrorBoundary resetRef={errorBoundaryResetRef}>
+      <Preview availableImports={{ react: React, ...availableImports }} code={fullCode} />
+    </ErrorBoundary>
+  );
+
+  return Container ? (
+    <Container editor={editor} preview={preview} />
+  ) : (
     <div style={{ border: '1px solid #bebebe' }}>
       <div style={{ margin: '16px 16px 0 16px', overflow: 'auto', paddingBottom: '16px' }}>
-        <ErrorBoundary resetRef={errorBoundaryResetRef}>
-          {WrappingComponent ? <WrappingComponent>{preview}</WrappingComponent> : preview}
-        </ErrorBoundary>
+        {preview}
       </div>
-      <div
-        style={{
-          borderTop: '1px solid #bebebe',
-          height,
-          overflow: 'auto',
-          resize: 'vertical',
-        }}
-      >
-        <Editor
-          {...editorProps}
-          onInput={(newCode) => {
-            if (id !== undefined) {
-              savedCode[id] = newCode;
-            }
-            setCurrentCode(newCode);
-            errorBoundaryResetRef.current();
-          }}
-          value={currentCode}
-        />
+      <div style={{ borderTop: '1px solid #bebebe', height, overflow: 'auto', resize: 'vertical' }}>
+        {editor}
       </div>
     </div>
   );

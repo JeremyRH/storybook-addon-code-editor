@@ -100,27 +100,37 @@ ${code}
 ---
 
 {(() => {
-  const code = `export default () => (
-  <h1 style={{ background: "#FFF", borderRadius: "8px", padding: "8px" }}>
-    Wrapped in a custom component with editor options (no minimap)
-  </h1>
-);`;
-  const Wrapper = (props) => (
-    <div style={{ background: '#EEE', padding: '10px' }}>{props.children}</div>
+  const code = 'export default () => <h1>Custom container with editor options (no minimap)</h1>;';
+  const Container = (props) => (
+    <div style={{ background: '#b7e1ee' }}>
+      <div style={{ margin: '16px', paddingTop: '16px', overflow: 'auto' }}>
+        {props.preview}
+      </div>
+      <div style={{ height: '350px', overflow: 'auto', resize: 'vertical' }}>
+        {props.editor}
+      </div>
+    </div>
   );
   return (
     <Playground
-      defaultEditorOptions={{minimap: { enabled: false }}}
-      WrappingComponent={Wrapper}
+      defaultEditorOptions={{ minimap: { enabled: false } }}
+      Container={Container}
       code={`
 /\* MDX:
 import { Playground } from 'storybook-addon-code-editor';
-const Wrapper = (props) => (
-  <div style={{ background: '#EEE', padding: '10px' }}>{props.children}</div>
+const Container = (props) => (
+  <div style={{ background: '#b7e1ee' }}>
+    <div style={{ margin: '16px', paddingTop: '16px', overflow: 'auto' }}>
+      {props.preview}
+    </div>
+    <div style={{ height: '350px', overflow: 'auto', resize: 'vertical' }}>
+      {props.editor}
+    </div>
+  </div>
 );
 <Playground
   defaultEditorOptions={{minimap: { enabled: false }}}
-  WrappingComponent={Wrapper}
+  Container={Container}
   code="${code}"
 />
 */
