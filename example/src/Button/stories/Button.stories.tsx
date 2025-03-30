@@ -69,7 +69,4 @@ export const nonEditableStoryArgs: Story = {
     backgroundColor: 'lightblue',
     children: 'Use the controls tab to edit me',
   },
-  parameters: {
-    liveCodeEditor: { disable: true },
-  },
 };
