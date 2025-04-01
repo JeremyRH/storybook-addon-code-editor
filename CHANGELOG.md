@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.0.0...v4.0.1) (2025-04-01)
+
+
+### Bug Fixes
+
+* passing tags to the story ([57b2d0e](https://github.com/JeremyRH/storybook-addon-code-editor/commit/57b2d0ef4901d3d97e19b4ea57449d06e534bf96))
+
 ## [4.0.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v3.2.0...v4.0.0) (2025-03-30)
 
 
