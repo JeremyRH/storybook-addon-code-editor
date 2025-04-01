@@ -11,6 +11,7 @@ export interface StoryState {
   modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
   defaultEditorOptions?: EditorOptions;
   parameters?: Record<string, unknown>;
+  tags?: Record<string, unknown>;
 }
 
 const store = createStore<StoryState>();
@@ -53,6 +54,7 @@ export function createLiveEditStory<T>({
   store.setValue(id, { code, availableImports, modifyEditor, ...options });
 
   const parameters = options.parameters as undefined | Record<string, any>;
+  const tags = options.tags as undefined | Record<string, any>;
 
   const story = (props: any) => <LivePreview storyId={id} storyArgs={props} />;
 
@@ -69,6 +71,9 @@ export function createLiveEditStory<T>({
         },
       },
     },
+    tags: {
+      ...tags,
+    }
   });
 }
 
