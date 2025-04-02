@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { createLiveEditStory } from 'storybook-addon-code-editor';
+import { makeLiveEditStory } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from '../../index';
 import InputTsSource from './editableStory.source.tsx?raw';
 
@@ -12,7 +12,9 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const EditableStory = createLiveEditStory<Story>({
+export const EditableStory: Story = {};
+
+makeLiveEditStory(EditableStory, {
   availableImports: { 'example-library': ExampleLibrary },
   code: InputTsSource,
 });
