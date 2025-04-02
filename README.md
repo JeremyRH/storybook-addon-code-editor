@@ -152,14 +152,14 @@ interface PlaygroundProps {
 `React` is automatically imported if `code` does not import it.
 React TypeScript definitions will be automatically loaded if `@types/react` is available.
 
-### `createLiveEditStory`
+### `makeLiveEditStory`
 
-Use the `createLiveEditStory` function in traditional stories:
+Use the `makeLiveEditStory` function in traditional stories:
 
 ```ts
 // MyComponent.stories.ts
 import type { Meta, StoryObj } from '@storybook/react';
-import { createLiveEditStory } from 'storybook-addon-code-editor';
+import { makeLiveEditStory } from 'storybook-addon-code-editor';
 import * as MyLibrary from './index';
 import storyCode from './MyStory.source.tsx?raw';
 
@@ -171,13 +171,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const MyStory = createLiveEditStory<Story>({
+export const MyStory: Story = {
+  // Story config
+};
+
+makeLiveEditStory(MyStory, {
   availableImports: { 'my-library': MyLibrary },
   code: storyCode,
 });
 ```
 
-`createLiveEditStory` options:
+`makeLiveEditStory` options:
 
 ```ts
 interface LiveEditStoryOptions {
@@ -188,7 +192,7 @@ interface LiveEditStoryOptions {
   };
   code: string;
   modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
-  // Any other Storybook story options, e.g. `args`, `parameters`, etc..
+  defaultEditorOptions?: Monaco.editor.IEditorOptions;
 }
 ```
 
