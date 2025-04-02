@@ -24,12 +24,13 @@ function loadMonacoEditor() {
         noSyntaxValidation: false,
       });
 
-      if (reactTypes) {
+      reactTypes.forEach(([packageName, dTsFile]) => {
+        const pName = packageName.replace('@types/', '');
         monaco.languages.typescript.typescriptDefaults.addExtraLib(
-          reactTypes,
-          'file:///node_modules/react/index.d.ts',
+          dTsFile,
+          `file:///node_modules/${pName}`,
         );
-      }
+      });
 
       monacoSetup.onMonacoLoad?.(monaco);
 
