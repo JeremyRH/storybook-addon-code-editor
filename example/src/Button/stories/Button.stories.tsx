@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { createLiveEditStory } from 'storybook-addon-code-editor';
+import { makeLiveEditStory } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from '../../index';
 import ButtonJsSource from './editableStory.source.js?raw';
 import ButtonTsSource from './editableStory.source.tsx?raw';
@@ -11,16 +11,22 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-  tags: ['autodocs'],
+  tags: ['autodocs', 'typescript'],
 } satisfies Meta<typeof ExampleLibrary.Button>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const EditableStoryJSSource = createLiveEditStory<Story>({
-  availableImports: { 'example-library': ExampleLibrary },
+// Stories declared as normal.
+export const EditableStoryJSSource: Story = {
+  tags: ['!typescript'],
+};
+
+// Modifies the story to add a live code editor panel.
+makeLiveEditStory(EditableStoryJSSource, {
   code: ButtonJsSource,
+  availableImports: { 'example-library': ExampleLibrary },
   modifyEditor(monaco, editor) {
     monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: true,
@@ -29,7 +35,9 @@ export const EditableStoryJSSource = createLiveEditStory<Story>({
   },
 });
 
-export const EditableStoryTSSource = createLiveEditStory<Story>({
+export const EditableStoryTSSource: Story = {};
+
+makeLiveEditStory(EditableStoryTSSource, {
   availableImports: { 'example-library': ExampleLibrary },
   code: ButtonTsSource,
   modifyEditor(monaco, editor) {
@@ -41,7 +49,14 @@ export const EditableStoryTSSource = createLiveEditStory<Story>({
   },
 });
 
-export const EditableStoryWithControls = createLiveEditStory<Story>({
+export const EditableStoryWithControls: Story = {
+  args: {
+    backgroundColor: 'black',
+    children: 'Set this text in the controls tab',
+  },
+};
+
+makeLiveEditStory(EditableStoryWithControls, {
   availableImports: { 'example-library': ExampleLibrary },
   code: `
     import { Button } from 'example-library';
@@ -58,10 +73,6 @@ export const EditableStoryWithControls = createLiveEditStory<Story>({
     });
     monaco.editor.setTheme('vs-dark');
   },
-  args: {
-    backgroundColor: 'black',
-    children: 'Set this text in the controls tab',
-  },
 });
 
 export const nonEditableStoryArgs: Story = {
@@ -69,4 +80,5 @@ export const nonEditableStoryArgs: Story = {
     backgroundColor: 'lightblue',
     children: 'Use the controls tab to edit me',
   },
+  tags: ['!typescript'],
 };

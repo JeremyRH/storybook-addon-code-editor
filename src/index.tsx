@@ -10,8 +10,6 @@ export interface StoryState {
   availableImports?: Record<string, Record<string, unknown>>;
   modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
   defaultEditorOptions?: EditorOptions;
-  parameters?: Record<string, unknown>;
-  tags?: Record<string, unknown>;
 }
 
 const store = createStore<StoryState>();
@@ -43,42 +41,90 @@ function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any 
   );
 }
 
-export function createLiveEditStory<T>({
+type AnyFn = (...args: any[]) => unknown;
+
+// Only define the types from Storybook that are used in makeLiveEditStory.
+// This allows us to support multiple versions of Storybook.
+type MinimalStoryObj = {
+  parameters?: {
+    liveCodeEditor?: {
+      disable: boolean;
+      id: string;
+    };
+    docs?: {
+      source?: Record<PropertyKey, unknown>;
+    };
+  };
+  render?: AnyFn;
+};
+
+// A story can be a function or an object.
+type MinimalStory = MinimalStoryObj | (AnyFn & MinimalStoryObj);
+
+/**
+ * Returns a story with live editing capabilities.
+ *
+ * @deprecated Use the {@link makeLiveEditStory} function instead.
+ */
+export function createLiveEditStory<T extends MinimalStory>({
   code,
   availableImports,
   modifyEditor,
-  ...options
+  defaultEditorOptions,
+  ...storyOptions
 }: StoryState & T) {
   const id = `id_${Math.random()}`;
 
-  store.setValue(id, { code, availableImports, modifyEditor, ...options });
+  store.setValue(id, { code, availableImports, modifyEditor, defaultEditorOptions });
 
-  const parameters = options.parameters as undefined | Record<string, any>;
-  const tags = options.tags as undefined | Record<string, any>;
-
-  const story = (props: any) => <LivePreview storyId={id} storyArgs={props} />;
-
-  return Object.assign(story, {
-    ...options,
+  return {
+    ...storyOptions,
     parameters: {
-      ...parameters,
-      liveCodeEditor: { disable: false, ...parameters?.liveCodeEditor, id },
+      ...storyOptions.parameters,
+      liveCodeEditor: { disable: false, id },
       docs: {
-        ...parameters?.docs,
+        ...storyOptions.parameters?.docs,
         source: {
-          ...parameters?.docs?.source,
+          ...storyOptions.parameters?.docs?.source,
           transform: (code: string) => store.getValue(id)?.code ?? code,
         },
       },
     },
-    tags: {
-      ...tags,
-    }
-  });
+    render: (props: any) => <LivePreview storyId={id} storyArgs={props} />,
+  } as unknown as T;
+}
+
+/**
+ * Modifies a story to include a live code editor addon panel.
+ */
+export function makeLiveEditStory<T extends MinimalStory>(
+  story: T,
+  { code, availableImports, modifyEditor, defaultEditorOptions }: StoryState,
+): void {
+  const id = `id_${Math.random()}`;
+
+  store.setValue(id, { code, availableImports, modifyEditor, defaultEditorOptions });
+
+  story.parameters = {
+    ...story.parameters,
+    liveCodeEditor: { disable: false, id },
+    docs: {
+      ...story.parameters?.docs,
+      source: {
+        ...story.parameters?.docs?.source,
+        transform: (code: string) => store.getValue(id)?.code ?? code,
+      },
+    },
+  };
+
+  story.render = (props: any) => <LivePreview storyId={id} storyArgs={props} />;
 }
 
 const savedCode: Record<PropertyKey, string> = {};
 
+/**
+ * React component containing a live code editor and preview.
+ */
 export function Playground({
   availableImports,
   code,
