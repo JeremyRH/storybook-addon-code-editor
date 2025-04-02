@@ -4,9 +4,7 @@ import * as React from 'react';
 import { addonId, panelId, paramId } from './constants';
 import { createStore } from './createStore';
 import Editor from './Editor/Editor';
-import type { createLiveEditStory } from './index';
-
-type StoryState = Parameters<typeof createLiveEditStory>[0];
+import type { StoryState } from './index';
 
 const store = createStore<StoryState>();
 
