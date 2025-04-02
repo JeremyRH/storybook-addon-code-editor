@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.1.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.0.1...v4.1.0) (2025-04-02)
+
+
+### Features
+
+* Add makeLiveEditStory to replace createLiveEditStory. createLiveEditStory is still available but deprecated. Storybook adds some features during the build by reading the story object. This means addons should not change the way a story is defined. In order to keep the interface simple, makeLiveEditStory does not create the story object. It takes an already defined story object and modifies it. ([613261c](https://github.com/JeremyRH/storybook-addon-code-editor/commit/613261c1d6c5f4369a429c3e77dce6b34a1281b1))
+
+
+### Bug Fixes
+
+* Import type directly. ([cd1d2d2](https://github.com/JeremyRH/storybook-addon-code-editor/commit/cd1d2d254f01ae14888ff7cfca9f5d3e77b169d1))
+* React types needed JSX types. ([7b7c2f7](https://github.com/JeremyRH/storybook-addon-code-editor/commit/7b7c2f7fb96edb22a4e5d3f3bb0bf98e552fb43f))
+
 ## [4.0.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.0.0...v4.0.1) (2025-04-01)
 
 
