@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.1.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.1.0...v4.1.1) (2025-04-03)
+
+
+### Bug Fixes
+
+* Clean up examples/docs. ([1dccf27](https://github.com/JeremyRH/storybook-addon-code-editor/commit/1dccf277de71b8e00e7b390aad4f382d71e995b7))
+
 ## [4.1.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.0.1...v4.1.0) (2025-04-02)
 
 
