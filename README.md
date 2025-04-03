@@ -2,19 +2,28 @@
 
 A Storybook add-on for live editing stories. Supports React and TypeScript.
 
-[Demo](https://jeremyrh.github.io/storybook-addon-code-editor)
+[See it in action.](https://jeremyrh.github.io/storybook-addon-code-editor)
 
-[Example code using this add-on](./example)
+[See an example project using this add-on.](./example)
+
+## What is it?
+
+This is a [Storybook addon](https://storybook.js.org/addons) that enables live editing of React components with real-time previews.
+Think of it like a lightweight [CodeSandbox](https://codesandbox.io), directly in stories or MDX pages.
+
+It uses [Monaco Editor](https://github.com/microsoft/monaco-editor) (VS Code for the browser) for an excellent TypeScript editing experience.
 
 ## Get started
 
-Install as a dev dependency.
+1. Install as a dev dependency:
 
 ```sh
 npm install --save-dev storybook-addon-code-editor
+# Or yarn:
+yarn add --dev storybook-addon-code-editor
 ```
 
-Add `storybook-addon-code-editor` in your `.storybook/main.ts` file and ensure the `staticDirs`, `addons`, and `framework` fields contain the following:
+2. Add `storybook-addon-code-editor` in your `.storybook/main.ts` file and ensure the `staticDirs`, `addons`, and `framework` fields contain the following:
 
 ```ts
 // .storybook/main.ts
@@ -50,8 +59,7 @@ import {
 
 const config: StorybookConfig =  {
   staticDirs: [
-    ...getCodeEditorStaticDirs(),
-
+    ...getCodeEditorStaticDirs(__filename),
     // files will be available at: /monaco-editor/esm/*
     getExtraStaticDir('monaco-editor/esm'),
 ```
@@ -76,25 +84,8 @@ Use the `Playground` component in [MDX format](https://storybook.js.org/docs/wri
 // MyComponent.stories.mdx
 import { Playground } from 'storybook-addon-code-editor'
 
-<Playground code="export default () => <h1>Hello</h1>;" />
+<Playground code="export default () => <h1>Hello</h1>" />
 ```
-
-<details>
-<summary>Example with a wrapping component and modified editor options</summary>
-
-```mdx
-import { Playground } from 'storybook-addon-code-editor';
-
-<Playground
-  defaultEditorOptions={{ minimap: { enabled: false } }}
-  WrappingComponent={(props) => (
-    <div style={{ background: '#EEE', padding: '10px' }}>{props.children}</div>
-  )}
-  code="export default () => <h1>Hello</h1>;"
-/>
-```
-
-</details>
 
 <details>
 <summary>More advanced example</summary>
@@ -143,6 +134,7 @@ interface PlaygroundProps {
     };
   };
   code?: string;
+  defaultEditorOptions?: Monaco.editor.IEditorOptions;
   height?: string;
   id?: string | number | symbol;
   modifyEditor?: (monaco: Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
@@ -154,7 +146,7 @@ React TypeScript definitions will be automatically loaded if `@types/react` is a
 
 ### `makeLiveEditStory`
 
-Use the `makeLiveEditStory` function in traditional stories:
+Use the `makeLiveEditStory` function in traditional stories to show a code editor panel:
 
 ```ts
 // MyComponent.stories.ts
@@ -244,7 +236,7 @@ npm install
 ### Run example
 
 ```sh
-npm run start:example
+npm run start-example
 ```
 
 When making changes to the library, the server needs to be manually restarted.

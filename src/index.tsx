@@ -171,7 +171,7 @@ export function Playground({
   return Container ? (
     <Container editor={editor} preview={preview} />
   ) : (
-    <div style={{ border: '1px solid #bebebe' }}>
+    <div className="sb-unstyled" style={{ border: '1px solid #bebebe' }}>
       <div style={{ margin: '16px 16px 0 16px', overflow: 'auto', paddingBottom: '16px' }}>
         {preview}
       </div>

@@ -1,24 +1,40 @@
 import * as React from 'react';
-import { type JSX } from 'react/jsx-runtime';
 
-type ButtonProps = JSX.IntrinsicElements['button'] & {
-  backgroundColor?: string;
-  children?: React.ReactNode;
+type ButtonProps = React.ComponentProps<'button'> & {
+  as?: 'primary' | 'secondary' | 'link';
 };
 
 const Button = React.forwardRef(
-  (
-    { backgroundColor, children, ...props }: ButtonProps,
-    ref: React.ForwardedRef<HTMLButtonElement>,
-  ) => {
-    return (
-      <button {...props} style={{ ...props.style, backgroundColor }} ref={ref}>
-        <span style={{ color: backgroundColor, filter: 'invert(1) grayscale(1) contrast(100)' }}>
-          {children}
-        </span>
-      </button>
-    );
+  ({ as = 'primary', ...props }: ButtonProps, ref: React.ForwardedRef<HTMLButtonElement>) => {
+    const defaultStyle = {
+      padding: '10px 20px',
+      borderRadius: '5px',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '16px',
+    };
+
+    const styles = {
+      primary: {
+        ...defaultStyle,
+        backgroundColor: '#007bff',
+        color: '#fff',
+      },
+      secondary: {
+        ...defaultStyle,
+        backgroundColor: '#6c757d',
+        color: '#fff',
+      },
+      link: {
+        ...defaultStyle,
+        backgroundColor: 'transparent',
+        color: '#007bff',
+        textDecoration: 'underline',
+      },
+    };
+
+    return <button {...props} style={{ ...props.style, ...styles[as] }} ref={ref} />;
   },
 );
 
-export default Button as (p: React.ComponentProps<typeof Button>) => JSX.Element;
+export default Button;

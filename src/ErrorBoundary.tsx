@@ -5,6 +5,15 @@ interface ErrorBoundaryProps {
   children: React.ReactNode;
 }
 
+export const errorStyle = {
+  backgroundColor: '#f8d7da',
+  borderRadius: '5px',
+  color: '#721c24',
+  fontFamily: 'monospace',
+  margin: '0',
+  padding: '20px',
+};
+
 class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
   state = { error: undefined };
 
@@ -19,7 +28,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps> {
 
   render() {
     if (this.state.error) {
-      return <pre>{String(this.state.error)}</pre>;
+      return <pre style={errorStyle}>{String(this.state.error)}</pre>;
     }
 
     return this.props.children;

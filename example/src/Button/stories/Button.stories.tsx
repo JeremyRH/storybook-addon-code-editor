@@ -51,7 +51,7 @@ makeLiveEditStory(EditableStoryTSSource, {
 
 export const EditableStoryWithControls: Story = {
   args: {
-    backgroundColor: 'black',
+    as: 'link',
     children: 'Set this text in the controls tab',
   },
 };
@@ -77,7 +77,6 @@ makeLiveEditStory(EditableStoryWithControls, {
 
 export const nonEditableStoryArgs: Story = {
   args: {
-    backgroundColor: 'lightblue',
     children: 'Use the controls tab to edit me',
   },
   tags: ['!typescript'],

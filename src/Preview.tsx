@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { EsModules, evalModule } from './evalModule';
+import { errorStyle } from './ErrorBoundary';
 
 interface PreviewProps {
   availableImports: EsModules;
@@ -18,7 +19,7 @@ export default function Preview({ availableImports, code, componentProps }: Prev
       throw new TypeError('Default export is not a React component');
     }
   } catch (error) {
-    return <pre>{String(error)}</pre>;
+    return <pre style={errorStyle}>{String(error)}</pre>;
   }
 
   return <DefaultExport {...componentProps} />;

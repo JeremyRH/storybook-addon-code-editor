@@ -4,7 +4,10 @@
   "description": "A Storybook add-on for live editing stories. Supports React and TypeScript.",
   "keywords": [
     "storybook-addons",
-    "code-editor"
+    "code",
+    "editor",
+    "live",
+    "real-time"
   ],
   "repository": {
     "type": "git",
@@ -37,8 +40,8 @@
   "scripts": {
     "build": "node scripts/rm.js dist && tsc --outDir dist/es && tsc --project tsconfig-cjs.json --outDir dist/cjs && node scripts/post-build.js",
     "format": "prettier src example/src --write",
-    "start:example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
-    "build:example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:build",
+    "start-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
+    "build-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:build",
     "test": "vitest run"
   },
   "dependencies": {
@@ -68,13 +71,14 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.8.2",
-    "vite": "^6.2.3",
-    "vitest": "^3.0.9"
+    "vite": "^6.2.5",
+    "vitest": "^3.1.1"
   },
   "storybook": {
-    "displayName": "Addon Code Editor",
+    "displayName": "Live Code Editor",
     "supportedFrameworks": [
       "react"
-    ]
+    ],
+    "icon": "https://raw.githubusercontent.com/jeremyrh/storybook-addon-code-editor/refs/heads/main/icon.png"
   }
 }

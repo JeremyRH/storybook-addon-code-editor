@@ -1,7 +1,6 @@
 import { Meta } from '@storybook/blocks';
 import { Playground } from 'storybook-addon-code-editor';
 import * as ExampleLibrary from './index';
-import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
 import './playgroundExample.css';
 
 <Meta
@@ -14,173 +13,66 @@ import './playgroundExample.css';
 
 # storybook-addon-code-editor
 
-A Storybook add-on for live editing stories. Supports React and TypeScript.
+This is an example using storybook-addon-code-editor, a [Storybook addon](https://storybook.js.org/addons) that enables live editing of React components with real-time previews.
+Think of it like a lightweight [CodeSandbox](https://codesandbox.io), directly in stories or MDX pages.
 
-<a href="https://github.com/JeremyRH/storybook-addon-code-editor" target="_blank">
-  View on GitHub
-</a>
-
-## Get started
-
-Install as a dev dependency.
-
-```sh
-npm install --save-dev storybook-addon-code-editor
-```
-
-Add `storybook-addon-code-editor` in your `.storybook/main.ts` file and ensure the `staticDirs`, `addons`, and `framework` fields contain the following:
-
-```ts
-// .storybook/main.ts
-import type { StorybookConfig } from '@storybook/react-vite';
-import { getCodeEditorStaticDirs } from 'storybook-addon-code-editor/getStaticDirs';
-
-const config: StorybookConfig = {
-  staticDirs: [...getCodeEditorStaticDirs(__filename)],
-  addons: ['storybook-addon-code-editor'],
-  framework: {
-    name: '@storybook/react-vite',
-    options: {},
-  },
-};
-
-export default config;
-```
-
-<details>
-<summary>About `staticDirs`</summary>
-
-`staticDirs` sets a list of directories of static files to be loaded by Storybook.
-The editor ([monaco-editor](https://github.com/microsoft/monaco-editor)) requires these extra static files to be available at runtime.
-
-Additional static files can be added using the `getExtraStaticDir` helper from `storybook-addon-code-editor/getStaticDirs`:
-
-```ts
-// .storybook/main.ts
-import {
-  getCodeEditorStaticDirs,
-  getExtraStaticDir,
-} from 'storybook-addon-code-editor/getStaticDirs';
-
-const config: StorybookConfig =  {
-  staticDirs: [
-    ...getCodeEditorStaticDirs(),
-
-    // files will be available at: /monaco-editor/esm/*
-    getExtraStaticDir('monaco-editor/esm'),
-```
-
-</details>
-
-<br />
-
-**Important:**
-
-`@storybook/react-vite` is the only supported framework at this time.
-
-<br />
+To start using storybook-addon-code-editor, [visit the GitHub page](https://github.com/JeremyRH/storybook-addon-code-editor/tree/main?tab=readme-ov-file#storybook-addon-code-editor).
 
 ## Showcase
 
 {(() => {
-  const code = 'export default () => <h1>Simple example</h1>;';
-  return (
-    <Playground
-      code={`
-/\* MDX:
-import { Playground } from 'storybook-addon-code-editor';
-<Playground code="${code}" />
-*/
-${code}
-      `.trim()}
-    />
+  const code = `
+import './playgroundExample.css';
+
+const blockColors = ['#c7729a', '#5dbeb4', '#85bd6e', '#b5bd6e', '#bd756e'];
+
+function getRandomBlockColor() {
+  const randIndex = Math.floor(Math.random() * blockColors.length);
+  return blockColors[randIndex];
+}
+
+export default () => {
+  const [blocks, setBlocks] = React.useState(
+    [{ color: getRandomBlockColor() }]
   );
-})()}
+  const addBlock = () =>
+    setBlocks((b) => [...b, { color: getRandomBlockColor() }]);
 
----
+  return (
+    <div>
+      <div className="block-container">
+        {blocks.map((block, i) => (
+          <div key={i} className="block" style={{ background: block.color }} />
+        ))}
+      </div>
+      <button className="button" onClick={addBlock}>+ Add Block</button>
+    </div>
+  );
+}`;
 
-{(() => {
-  const code = 'export default () => <h1>Custom container and editor style</h1>;';
   const Container = (props) => (
-    <div style={{ background: '#b7e1ee', borderRadius: '6px', overflow: 'hidden' }}>
-      <div style={{ margin: '16px', paddingTop: '16px', overflow: 'auto' }}>
+    <div className="sb-unstyled" style={{ background: '#efefef', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ padding: '16px' }}>
         {props.preview}
       </div>
-      <div style={{ height: '550px', overflow: 'auto', resize: 'vertical' }}>
+      <div style={{ height: '665px', overflow: 'auto', resize: 'vertical' }}>
         {props.editor}
       </div>
     </div>
   );
+
   return (
     <Playground
+      availableImports={{
+        './playgroundExample.css': {},
+      }}
+      code={code}
+      Container={Container}
       defaultEditorOptions={{
         minimap: { enabled: false },
         lineNumbers: 'off',
         fontSize: '15pt',
       }}
-      Container={Container}
-      code={`
-/\* MDX:
-import { Playground } from 'storybook-addon-code-editor';
-const Container = (props) => (
-  <div style={{ background: '#b7e1ee', borderRadius: '6px', overflow: 'hidden' }}>
-    <div style={{ margin: '16px', paddingTop: '16px', overflow: 'auto' }}>
-      {props.preview}
-    </div>
-    <div style={{ height: '550px', overflow: 'auto', resize: 'vertical' }}>
-      {props.editor}
-    </div>
-  </div>
-);
-<Playground
-  defaultEditorOptions={{
-    minimap: { enabled: false },
-    lineNumbers: 'off',
-    fontSize: '15pt',
-  }}
-  Container={Container}
-  code="${code}"
-/>
-*/
-${code}
-      `.trim()}
-    />
-  );
-})()}
-
----
-
-{(() => {
-  const code = `
-/\* MDX:
-import { Playground } from 'storybook-addon-code-editor';
-import PlaygroundExampleCode from './playgroundExample.source.tsx?raw';
-import './playgroundExample.css';
-
-<Playground
-  code={PlaygroundExampleCode}
-  availableImports={{
-    'example-library': ExampleLibrary,
-    './playgroundExample.css': {},
-  }}
-  height="560px"
-  id="complex example" // used to save the editor state until a page reload
-  modifyEditor={(monaco, editor) => {
-    monaco.editor.setTheme('vs-dark');
-  }}
-/>
-*/
-${PlaygroundExampleCode}
-  `.trim();
-  return (
-    <Playground
-      code={code}
-      availableImports={{
-        'example-library': ExampleLibrary,
-        './playgroundExample.css': {},
-      }}
-      height="560px"
-      id="complex example" // used to save the editor state until a page reload
       modifyEditor={(monaco, editor) => {
         monaco.editor.setTheme('vs-dark');
       }}
@@ -188,8 +80,4 @@ ${PlaygroundExampleCode}
   );
 })()}
 
-<br />
-
-<a href="https://github.com/JeremyRH/storybook-addon-code-editor/tree/main/example" target="_blank">
-  See this /example directory for additional usage.
-</a>
+[See the MDX file used to create this page.](https://raw.githubusercontent.com/JeremyRH/storybook-addon-code-editor/refs/heads/main/example/src/intro.mdx)

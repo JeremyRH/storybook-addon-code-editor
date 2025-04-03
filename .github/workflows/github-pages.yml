@@ -25,7 +25,7 @@ jobs:
           npm ci
           rm -rf example/node_modules
           rm example/package-lock.json
-          npm run build:example
+          npm run build-example
 
       - uses: actions/upload-pages-artifact@v3
         with:

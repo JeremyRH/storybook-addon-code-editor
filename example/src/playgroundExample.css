@@ -1,14 +1,58 @@
-.button-nice {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  box-sizing: border-box;
-  cursor: pointer;
-  font-family: sans-serif;
-  font-size: 20px;
-  margin-left: 5px;
-  padding: 10px 15px;
+html {
+  font-family:
+    'Nunito Sans',
+    -apple-system,
+    sans-serif;
 }
 
-.button-nice:focus {
-  outline: #015ecc auto 1px;
+.button {
+  background-color: #1976d2;
+  border-radius: 4px;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  color: #ecf0f1;
+  font-size: 14pt;
+  outline: none;
+  overflow: hidden;
+  padding: 10px 20px;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.button:hover,
+.button:focus {
+  background-color: #12589f;
+}
+
+.button:before {
+  background-color: rgba(236, 240, 241, 0.3);
+  border-radius: 100%;
+  content: '';
+  display: block;
+  left: 50%;
+  padding-top: 0;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+}
+
+.button:active:before {
+  padding-top: 120%;
+  transition:
+    width 0.2s ease-out,
+    padding-top 0.2s ease-out;
+  width: 120%;
+}
+
+.block-container {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.block {
+  border-radius: 10px;
+  height: 100px;
+  width: 200px;
 }
