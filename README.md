@@ -207,7 +207,7 @@ setupMonaco({
       ...
     },
   },
-  // onMonacoLoad is called when monaco is first loaded and before an editor instance is created.
+  // onMonacoLoad is called when monaco is first loaded, before an editor instance is created.
   onMonacoLoad(monaco) {
     ...
   },
