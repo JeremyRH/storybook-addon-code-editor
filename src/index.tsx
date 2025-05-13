@@ -46,6 +46,7 @@ type AnyFn = (...args: any[]) => unknown;
 // Only define the types from Storybook that are used in makeLiveEditStory.
 // This allows us to support multiple versions of Storybook.
 type MinimalStoryObj = {
+  tags?: string;
   parameters?: {
     liveCodeEditor?: {
       disable: boolean;
