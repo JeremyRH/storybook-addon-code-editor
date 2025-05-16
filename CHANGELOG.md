@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.1.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.1.1...v4.1.2) (2025-05-16)
+
+
+### Bug Fixes
+
+* add indexed keys ([238c246](https://github.com/JeremyRH/storybook-addon-code-editor/commit/238c246c34b190f659640b83165b5d3de40fc971))
+* add tags to MinimalStoryObj ([f6eb42b](https://github.com/JeremyRH/storybook-addon-code-editor/commit/f6eb42b71d59322c7a8a8a11291ee51c48eebe82))
+
 ## [4.1.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.1.0...v4.1.1) (2025-04-03)
 
 
