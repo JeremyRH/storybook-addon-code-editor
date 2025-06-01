@@ -46,14 +46,12 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.27.0",
-    "@storybook/components": "^8.6.11",
-    "@storybook/manager-api": "^8.6.11",
-    "@storybook/types": "^8.6.11",
     "monaco-editor": "0.52.2"
   },
   "peerDependencies": {
     "@types/react": "17.x.x || 18.x.x || 19.x.x",
-    "react": "17.x.x || 18.x.x || 19.x.x"
+    "react": "17.x.x || 18.x.x || 19.x.x",
+    "storybook": "^9.0.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
@@ -61,6 +59,7 @@
     }
   },
   "devDependencies": {
+    "@storybook/react-vite": "^9.0.3",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^22.13.14",
@@ -70,6 +69,7 @@
     "prettier": "^3.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "storybook": "^9.0.3",
     "typescript": "^5.8.2",
     "vite": "^6.2.5",
     "vitest": "^3.1.1"

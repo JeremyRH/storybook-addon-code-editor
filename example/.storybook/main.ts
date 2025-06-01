@@ -14,12 +14,7 @@ const config: StorybookConfig = {
     // getExtraStaticDir('monaco-editor/esm'),
   ],
   addons: [
-    {
-      name: '@storybook/addon-essentials',
-      options: {
-        actions: false,
-      },
-    },
+    '@storybook/addon-docs',
     'storybook-addon-code-editor',
   ],
   framework: {
