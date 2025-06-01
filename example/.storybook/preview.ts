@@ -1,4 +1,4 @@
-import type { Preview } from '@storybook/react';
+import type { Preview } from '@storybook/react-vite';
 import { setupMonaco } from 'storybook-addon-code-editor';
 // @ts-ignore
 import ExampleLibraryTypes from '../dist/types.d.ts?raw';
@@ -52,7 +52,7 @@ setupMonaco({
     // Add type definitions for this example library.
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
       ExampleLibraryTypes,
-      'file:///node_modules/example-library/index.d.ts'
+      'file:///node_modules/example-library/index.d.ts',
     );
   },
 });
@@ -64,6 +64,9 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/i,
       },
+    },
+    actions: {
+      disable: true,
     },
   },
 };
