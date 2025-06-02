@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.1.2...v5.0.0) (2025-06-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* support Storybook 9
+
+### Features
+
+* support Storybook 9 ([f20b1a0](https://github.com/JeremyRH/storybook-addon-code-editor/commit/f20b1a0f5848ea8ee037c051d9793429e6a4b303))
+
 ## [4.1.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v4.1.1...v4.1.2) (2025-05-16)
 
 
