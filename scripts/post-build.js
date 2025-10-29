@@ -1,7 +1,6 @@
 // @ts-check
 
 import path from 'node:path';
-import fs from 'node:fs';
 import { createChildProcess } from './createChildProcess.js';
 import pkgJson from '../package.json' with { type: 'json' };
 
@@ -14,12 +13,6 @@ function exec(command) {
 }
 
 (async () => {
-  // .js files that are commonjs need a package.json with type: "commonjs"
-  await fs.promises.writeFile(
-    path.join(repoRoot, 'dist', 'cjs', 'package.json'),
-    '{ "type": "commonjs" }',
-  ),
-
   // Create a .tgz file for the package to test it thoroughly in /example.
   // Set the version to 0.0.0 before packing, then set it back to the original version
   // to allow /example to always use the latest build of the package.
