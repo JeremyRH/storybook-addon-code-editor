@@ -54,7 +54,7 @@ type MinimalStoryObj = {
     };
     docs?: {
       source?: Record<PropertyKey, unknown>;
-     [k: string]: any;
+      [k: string]: any;
     };
     [k: string]: any;
   };
@@ -64,39 +64,6 @@ type MinimalStoryObj = {
 
 // A story can be a function or an object.
 type MinimalStory = MinimalStoryObj | (AnyFn & MinimalStoryObj);
-
-/**
- * Returns a story with live editing capabilities.
- *
- * @deprecated Use the {@link makeLiveEditStory} function instead.
- */
-export function createLiveEditStory<T extends MinimalStory>({
-  code,
-  availableImports,
-  modifyEditor,
-  defaultEditorOptions,
-  ...storyOptions
-}: StoryState & T) {
-  const id = `id_${Math.random()}`;
-
-  store.setValue(id, { code, availableImports, modifyEditor, defaultEditorOptions });
-
-  return {
-    ...storyOptions,
-    parameters: {
-      ...storyOptions.parameters,
-      liveCodeEditor: { disable: false, id },
-      docs: {
-        ...storyOptions.parameters?.docs,
-        source: {
-          ...storyOptions.parameters?.docs?.source,
-          transform: (code: string) => store.getValue(id)?.code ?? code,
-        },
-      },
-    },
-    render: (props: any) => <LivePreview storyId={id} storyArgs={props} />,
-  } as unknown as T;
-}
 
 /**
  * Modifies a story to include a live code editor addon panel.

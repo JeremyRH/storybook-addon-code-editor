@@ -3,7 +3,7 @@
   "version": "5.0.0",
   "description": "A Storybook add-on for live editing stories. Supports React and TypeScript.",
   "keywords": [
-    "storybook-addons",
+    "storybook-addon",
     "code",
     "editor",
     "live",
@@ -18,27 +18,21 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/es/index.d.ts",
-      "import": "./dist/es/index.js",
-      "require": "./dist/cjs/index.js"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./getStaticDirs": {
-      "types": "./dist/es/getStaticDirs.d.ts",
-      "import": "./dist/es/getStaticDirs.js",
-      "require": "./dist/cjs/getStaticDirs.js"
+      "types": "./dist/getStaticDirs.d.ts",
+      "default": "./dist/getStaticDirs.js"
     },
-    "./manager": "./dist/es/manager.js",
+    "./manager": "./dist/manager.js",
     "./package.json": "./package.json"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/es/index.js",
-  "types": "dist/es/index.d.ts",
   "files": [
-    "dist",
-    "manager.js"
+    "dist"
   ],
   "scripts": {
-    "build": "node scripts/rm.js dist && tsc --outDir dist/es && tsc --project tsconfig-cjs.json --outDir dist/cjs && node scripts/post-build.js",
+    "build": "node scripts/rm.js dist && tsc --outDir dist && node scripts/post-build.js",
     "format": "prettier src example/src --write",
     "start-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
     "build-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:build",
@@ -51,7 +45,7 @@
   "peerDependencies": {
     "@types/react": "17.x.x || 18.x.x || 19.x.x",
     "react": "17.x.x || 18.x.x || 19.x.x",
-    "storybook": "^9.0.0"
+    "storybook": "10.x.x"
   },
   "peerDependenciesMeta": {
     "@types/react": {
@@ -59,17 +53,17 @@
     }
   },
   "devDependencies": {
-    "@storybook/react-vite": "^9.0.3",
+    "@storybook/react-vite": "^10.0.5",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
-    "@types/node": "^22.13.14",
+    "@types/node": "^24.10.0",
     "@types/react": "^18.3.16",
     "@types/react-dom": "^18.3.5",
     "happy-dom": "^17.4.4",
     "prettier": "^3.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "storybook": "^9.0.3",
+    "storybook": "^10.0.5",
     "typescript": "^5.8.2",
     "vite": "^6.2.5",
     "vitest": "^3.1.1"

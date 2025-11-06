@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: '.tool-versions'
 
       - run: |
           npm ci
@@ -27,7 +27,7 @@ jobs:
           rm example/package-lock.json
           npm run build-example
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: storybook-site/
 

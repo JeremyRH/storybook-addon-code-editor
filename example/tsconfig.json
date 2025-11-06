@@ -8,7 +8,7 @@
     "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "Preserve",
-    "moduleResolution": "Node10",
+    "moduleResolution": "Bundler",
     "noEmitOnError": true,
     "paths": {
       "example-library": ["src/index"]

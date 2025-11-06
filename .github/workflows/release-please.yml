@@ -10,6 +10,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write
 
     runs-on: ubuntu-latest
 
@@ -20,12 +21,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: ${{ steps.release.outputs.release_created }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version-file: '.tool-versions'
           registry-url: 'https://registry.npmjs.org'
         if: ${{ steps.release.outputs.release_created }}
 
