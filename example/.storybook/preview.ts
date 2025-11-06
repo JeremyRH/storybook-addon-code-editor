@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/react-vite';
 import { setupMonaco } from 'storybook-addon-code-editor';
-// @ts-ignore
+// @ts-expect-error: importing raw types file
 import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 
 // When customizing monaco-editor, setupMonaco needs to be called before any story loads.
