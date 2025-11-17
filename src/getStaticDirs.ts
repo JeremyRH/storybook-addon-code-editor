@@ -1,22 +1,7 @@
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
-// Why not use `__filename` or `import.meta.filename`? Because this file gets compiled to both
-// CommonJS and ES module. `import.meta.filename` is a syntax error in CommonJS and `__filename`
-// is not available in ES modules. We can't use `import.meta.url` at all so we need a workaround.
-function getFileNameFromStack() {
-  const isWindows = process.platform === 'win32';
-  const fullPathRegex = isWindows
-    ? /[a-zA-Z]:\\.*\\getStaticDirs\.[cm]?js/
-    : /\/.*\/getStaticDirs\.[cm]?js/;
-  const match = fullPathRegex.exec(new Error().stack || '');
-  if (!match) {
-    throw new Error('Could not get the file path of storybook-addon-code-editor/getStaticDirs');
-  }
-  return match[0];
-}
-
-const filename = typeof __filename === 'string' ? __filename : getFileNameFromStack();
+const filename = import.meta.filename;
 
 function resolve(reqFn: NodeRequire, packageName: string) {
   try {
