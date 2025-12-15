@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.0...v6.1.1) (2025-12-15)
+
+
+### Bug Fixes
+
+* Fix Storybook Composition Failures ([6767a0a](https://github.com/JeremyRH/storybook-addon-code-editor/commit/6767a0af3c0aeae389939eeb556704227171db88))
+
 ## [6.1.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.0.0...v6.1.0) (2025-11-17)
 
 
