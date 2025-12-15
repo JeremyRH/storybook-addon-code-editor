@@ -225,6 +225,107 @@ interface MonacoSetup {
 
 <br />
 
+## Storybook Composition
+
+This addon supports [Storybook Composition](https://storybook.js.org/docs/sharing/storybook-composition), allowing live code editing to work when embedding remote Storybooks.
+
+### How it works
+
+When using composition, the code editor panel in the host Storybook communicates with the preview iframe (from the composed Storybook) via Storybook's channel API. This enables real-time preview updates even across different Storybook instances.
+
+### Setup
+
+#### 1. In the Composed Storybook (the one being embedded)
+
+Register the imports that should be available for live editing:
+
+```ts
+// .storybook/preview.ts
+import { registerAvailableImports } from 'storybook-addon-code-editor';
+import * as MyLibrary from 'my-library';
+
+// Register imports so they're available when this Storybook is composed
+registerAvailableImports({
+  'my-library': MyLibrary,
+});
+```
+
+#### 2. In the Host Storybook (the one doing the composing)
+
+First, add the composition reference in your main config:
+
+```ts
+// .storybook/main.ts
+import type { StorybookConfig } from '@storybook/react-vite';
+import { getCodeEditorStaticDirs } from 'storybook-addon-code-editor/getStaticDirs';
+
+const config: StorybookConfig = {
+  staticDirs: [...getCodeEditorStaticDirs(__filename)],
+  addons: ['storybook-addon-code-editor'],
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+  refs: {
+    'my-composed-storybook': {
+      title: 'My Composed Storybook',
+      url: 'https://my-composed-storybook.example.com',
+    },
+  },
+};
+
+export default config;
+```
+
+Then, register the same imports in the manager so the editor panel can provide them:
+
+```ts
+// .storybook/manager.ts
+import { setupCompositionImports } from 'storybook-addon-code-editor/manager';
+import * as MyLibrary from 'my-library';
+
+// Register imports for composed stories
+setupCompositionImports({
+  'my-library': MyLibrary,
+});
+```
+
+### API
+
+#### `registerAvailableImports`
+
+Register imports in the **preview** (composed Storybook) that will be available for live code editing.
+
+```ts
+import { registerAvailableImports } from 'storybook-addon-code-editor';
+
+registerAvailableImports({
+  'my-library': MyLibrary,
+  'lodash': lodash,
+});
+```
+
+#### `setupCompositionImports`
+
+Register imports in the **manager** (host Storybook) for the editor panel to use when viewing composed stories.
+
+```ts
+import { setupCompositionImports } from 'storybook-addon-code-editor/manager';
+
+setupCompositionImports({
+  'my-library': MyLibrary,
+  'lodash': lodash,
+});
+```
+
+### Notes
+
+- Both the composed and host Storybooks must have the same imports registered for full functionality.
+- The `code` is automatically included in story parameters, so it's available in composition without additional setup.
+- Preview updates work in real-time when both Storybooks are properly configured.
+
+<br />
+
 ## Contributing
 
 ### Install dependencies
