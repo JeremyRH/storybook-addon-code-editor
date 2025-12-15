@@ -26,6 +26,11 @@ addons.register(addonId, (api) => {
 
       const storyState = store.getValue(storyId)!;
 
+      // Handle case where store doesn't have state for this story (e.g., composed Storybooks)
+      if (!storyState) {
+        return null;
+      }
+
       return (
         <AddonPanel active={true}>
           <Editor
