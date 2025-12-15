@@ -1,6 +1,6 @@
 {
   "name": "storybook-addon-code-editor",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "A Storybook add-on for live editing stories. Supports React and TypeScript.",
   "keywords": [
     "storybook-addon",
