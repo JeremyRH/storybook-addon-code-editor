@@ -36,6 +36,8 @@
     "format": "prettier src example/src --write",
     "start-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
     "build-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:build",
+    "start-composed": "npm run build && cd example-composed && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
+    "build-composed": "npm run build && cd example-composed && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:build",
     "test": "vitest run"
   },
   "dependencies": {

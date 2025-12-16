@@ -1,0 +1,100 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Composition/Introduction" />
+
+# Storybook Composition with Live Code Editor
+
+This example demonstrates how to use the live code editor addon with [Storybook Composition](https://storybook.js.org/docs/sharing/storybook-composition).
+
+## What is Storybook Composition?
+
+Storybook Composition allows you to embed multiple Storybooks into a single Storybook instance. This is useful for:
+
+- Viewing design systems across multiple projects
+- Aggregating component libraries from different teams
+- Creating a unified documentation experience
+
+## How the Live Code Editor Works with Composition
+
+When viewing a composed story that uses `makeLiveEditStory`:
+
+1. The **code editor panel** is available in the host Storybook
+2. The **preview** updates in real-time as you edit code
+3. Any **missing imports** are shown with a helpful warning message
+
+## Setup Guide
+
+### 1. In the Composed Storybook (the one being embedded)
+
+Register the imports in `preview.ts`:
+
+```ts
+// .storybook/preview.ts
+import { registerAvailableImports } from 'storybook-addon-code-editor';
+import * as MyLibrary from 'my-library';
+
+registerAvailableImports({
+  'my-library': MyLibrary,
+});
+```
+
+### 2. In the Host Storybook (the one doing the composing)
+
+Register the same imports in `manager.ts`:
+
+```ts
+// .storybook/manager.ts
+import { setupCompositionImports } from 'storybook-addon-code-editor/manager';
+import * as MyLibrary from 'my-library';
+
+setupCompositionImports({
+  'my-library': MyLibrary,
+});
+```
+
+And add the composition reference in `main.ts`:
+
+```ts
+// .storybook/main.ts
+const config: StorybookConfig = {
+  // ... other config
+  refs: {
+    'my-composed-storybook': {
+      title: 'My Composed Storybook',
+      url: 'http://localhost:6007', // or the deployed URL
+    },
+  },
+};
+```
+
+## Testing Composition Locally
+
+To test the composition example in this project:
+
+1. **Start the composed Storybook** (on port 6007):
+   ```sh
+   cd example-composed
+   npm install
+   npm run storybook:dev
+   ```
+
+2. **Start the main example Storybook** (on port 6006):
+   ```sh
+   cd example
+   npm install
+   npm run storybook:dev
+   ```
+
+3. Open [http://localhost:6006](http://localhost:6006) and look for the "Composed Storybook" section in the sidebar.
+
+## Missing Imports Warning
+
+If the host Storybook is missing some imports that the composed story needs, you'll see a warning banner in the editor panel:
+
+> ⚠️ Missing imports for composition
+
+Click the warning to expand it and see:
+- Which imports are missing
+- Example code to register them
+
+This helps you quickly identify and fix configuration issues.

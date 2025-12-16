@@ -180,7 +180,17 @@ function CompositionEditor({
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {missingImports.length > 0 && (
         <div
           style={{
@@ -188,6 +198,7 @@ function CompositionEditor({
             borderBottom: '1px solid #ffc107',
             fontSize: '0.85em',
             color: '#856404',
+            flexShrink: 0,
           }}
         >
           <button
