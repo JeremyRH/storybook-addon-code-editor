@@ -247,6 +247,10 @@ function CompositionEditor({
       return match ? match[1] : null;
     };
 
+    // Get existing compiler options to check for already-configured paths
+    const existingOptions = monaco.languages.typescript.typescriptDefaults.getCompilerOptions();
+    const existingPaths = existingOptions.paths || {};
+
     // Add type definitions to Monaco
     Object.entries(typeDefs).forEach(([key, types]) => {
       // Support both formats:
@@ -254,10 +258,18 @@ function CompositionEditor({
       // 2. Simple module names like "ag-grid-react" -> "file:///node_modules/ag-grid-react/index.d.ts"
       const filePath = key.startsWith('file:///') ? key : `file:///node_modules/${key}/index.d.ts`;
 
+      // Extract module name to check if host already has types for this package
+      const moduleName = extractPackageName(filePath);
+
+      // Skip if host Storybook already has types configured for this package
+      // This prevents composed Storybook types from conflicting with host types
+      if (moduleName && existingPaths[moduleName]) {
+        return;
+      }
+
       monaco.languages.typescript.typescriptDefaults.addExtraLib(types, filePath);
 
       // Extract module name from path to build path mappings
-      const moduleName = extractPackageName(filePath);
       if (moduleName && (filePath.includes('index.d.ts') || filePath.includes('main.d.ts'))) {
         if (!moduleMainFiles[moduleName]) {
           moduleMainFiles[moduleName] = [];
@@ -266,16 +278,22 @@ function CompositionEditor({
       }
     });
 
-    // Configure module resolution paths
+    // Configure module resolution paths (only for packages not already configured)
     const paths: Record<string, string[]> = {};
     Object.entries(moduleMainFiles).forEach(([moduleName, files]) => {
-      paths[moduleName] = files;
+      // Skip if host already has paths configured for this module
+      if (!existingPaths[moduleName]) {
+        paths[moduleName] = files;
+      }
     });
 
     if (Object.keys(paths).length > 0) {
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-        ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
-        paths,
+        ...existingOptions,
+        paths: {
+          ...existingPaths,
+          ...paths,
+        },
       });
     }
   }, [typeDefs]);
@@ -335,6 +353,10 @@ function CompositionEditor({
         return match ? match[1] : null;
       };
 
+      // Get existing compiler options to check for already-configured paths
+      const existingOptions = monaco.languages.typescript.typescriptDefaults.getCompilerOptions();
+      const existingPaths = existingOptions.paths || {};
+
       // Add any type definitions we already have
       if (Object.keys(typeDefs).length > 0) {
         const moduleMainFiles: Record<string, string[]> = {};
@@ -344,9 +366,16 @@ function CompositionEditor({
             ? key
             : `file:///node_modules/${key}/index.d.ts`;
 
+          // Extract module name to check if host already has types for this package
+          const moduleName = extractPackageName(filePath);
+
+          // Skip if host Storybook already has types configured for this package
+          if (moduleName && existingPaths[moduleName]) {
+            return;
+          }
+
           monaco.languages.typescript.typescriptDefaults.addExtraLib(types, filePath);
 
-          const moduleName = extractPackageName(filePath);
           if (moduleName && (filePath.includes('index.d.ts') || filePath.includes('main.d.ts'))) {
             if (!moduleMainFiles[moduleName]) {
               moduleMainFiles[moduleName] = [];
@@ -355,15 +384,21 @@ function CompositionEditor({
           }
         });
 
+        // Configure paths only for packages not already configured by host
         const paths: Record<string, string[]> = {};
         Object.entries(moduleMainFiles).forEach(([moduleName, files]) => {
-          paths[moduleName] = files;
+          if (!existingPaths[moduleName]) {
+            paths[moduleName] = files;
+          }
         });
 
         if (Object.keys(paths).length > 0) {
           monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-            ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
-            paths,
+            ...existingOptions,
+            paths: {
+              ...existingPaths,
+              ...paths,
+            },
           });
         }
       }
