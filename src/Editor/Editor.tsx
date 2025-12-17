@@ -72,12 +72,19 @@ interface EditorState {
   editor?: Monaco.editor.IStandaloneCodeEditor;
   editorContainer?: HTMLDivElement;
   monaco?: typeof Monaco;
+  latestValue: string;
 }
 
 export default function Editor(props: EditorProps) {
-  const stateRef = React.useRef<EditorState>({ onInput: props.onInput }).current;
+  const stateRef = React.useRef<EditorState>({
+    onInput: props.onInput,
+    latestValue: props.value,
+  }).current;
   const [_, forceUpdate] = React.useReducer((n) => n + 1, 0);
   let resolveContainer: (...args: any[]) => any = () => {};
+
+  // Always keep the latest value in the ref
+  stateRef.latestValue = props.value;
 
   React.useState(() => {
     const containerPromise = new Promise<HTMLDivElement>((resolve) => {
@@ -86,9 +93,10 @@ export default function Editor(props: EditorProps) {
 
     Promise.all([containerPromise, loadMonacoEditor()]).then(([editorContainer, monaco]) => {
       stateRef.monaco = monaco;
+      // Use the latest value from the ref, not the closure-captured props.value
       stateRef.editor = createEditor(
         monaco,
-        props.value,
+        stateRef.latestValue,
         editorContainer,
         props.defaultEditorOptions,
       );

@@ -231,28 +231,37 @@ This addon supports [Storybook Composition](https://storybook.js.org/docs/sharin
 
 ### How it works
 
-When using composition, the code editor panel in the host Storybook communicates with the preview iframe (from the composed Storybook) via Storybook's channel API. This enables real-time preview updates even across different Storybook instances.
+When using composition, the preview iframe (from the composed Storybook) handles all the code compilation. The code editor panel in the host Storybook simply sends code updates via Storybook's channel API. This means **the host Storybook requires no special configuration** - all imports are bundled in the composed Storybook's preview.
 
 ### Setup
 
 #### 1. In the Composed Storybook (the one being embedded)
 
-Register the imports that should be available for live editing:
+Register the imports that should be available for live editing using `registerLiveEditPreview`:
 
 ```ts
 // .storybook/preview.ts
-import { registerAvailableImports } from 'storybook-addon-code-editor';
+import { registerLiveEditPreview } from 'storybook-addon-code-editor';
 import * as MyLibrary from 'my-library';
 
-// Register imports so they're available when this Storybook is composed
-registerAvailableImports({
-  'my-library': MyLibrary,
+// Register imports - the preview handles all compilation
+registerLiveEditPreview({
+  imports: {
+    'my-library': MyLibrary,
+  },
+  // Optional: provide type definitions for editor intellisense
+  typeDefinitions: {
+    'my-library': `
+      export interface ButtonProps { label: string; onClick?: () => void; }
+      export const Button: React.FC<ButtonProps>;
+    `,
+  },
 });
 ```
 
 #### 2. In the Host Storybook (the one doing the composing)
 
-First, add the composition reference in your main config:
+Just add the composition reference in your main config - **no manager.ts setup needed!**
 
 ```ts
 // .storybook/main.ts
@@ -277,52 +286,62 @@ const config: StorybookConfig = {
 export default config;
 ```
 
-Then, register the same imports in the manager so the editor panel can provide them:
-
-```ts
-// .storybook/manager.ts
-import { setupCompositionImports } from 'storybook-addon-code-editor/manager';
-import * as MyLibrary from 'my-library';
-
-// Register imports for composed stories
-setupCompositionImports({
-  'my-library': MyLibrary,
-});
-```
+That's it! The host Storybook automatically gets live code editing for composed stories.
 
 ### API
 
-#### `registerAvailableImports`
+#### `registerLiveEditPreview`
 
-Register imports in the **preview** (composed Storybook) that will be available for live code editing.
+Register imports and optional type definitions in the **preview** (composed Storybook). The preview frame handles all code compilation.
 
 ```ts
-import { registerAvailableImports } from 'storybook-addon-code-editor';
+import { registerLiveEditPreview } from 'storybook-addon-code-editor';
 
-registerAvailableImports({
-  'my-library': MyLibrary,
-  'lodash': lodash,
+registerLiveEditPreview({
+  // Required: imports available for live code editing
+  imports: {
+    'my-library': MyLibrary,
+    'lodash': lodash,
+  },
+  // Optional: type definitions for editor intellisense (sent to host automatically)
+  typeDefinitions: {
+    'my-library': `export const Button: React.FC<{ label: string }>;`,
+  },
 });
 ```
 
-#### `setupCompositionImports`
+### Story-Specific Imports
 
-Register imports in the **manager** (host Storybook) for the editor panel to use when viewing composed stories.
+You can also define imports per-story using `makeLiveEditStory`. These are **merged** with globally registered imports, with story-specific imports taking precedence:
 
 ```ts
-import { setupCompositionImports } from 'storybook-addon-code-editor/manager';
+// preview.ts - register common imports globally
+registerLiveEditPreview({
+  imports: {
+    'my-component-library': MyLib,
+  },
+});
 
-setupCompositionImports({
-  'my-library': MyLibrary,
-  'lodash': lodash,
+// MyChart.stories.tsx - add story-specific imports
+makeLiveEditStory(ChartStory, {
+  code: chartCode,
+  availableImports: { 
+    'chart.js': ChartJS,  // Only this story gets chart.js
+  },
 });
 ```
+
+This allows you to:
+- Keep common dependencies in `preview.ts` (smaller bundle per story)
+- Add heavy dependencies only to stories that need them
+- Override global imports for specific stories if needed
 
 ### Notes
 
-- Both the composed and host Storybooks must have the same imports registered for full functionality.
-- The `code` is automatically included in story parameters, so it's available in composition without additional setup.
-- Preview updates work in real-time when both Storybooks are properly configured.
+- Only the composed Storybook needs to register imports - the host gets them automatically.
+- Type definitions are optional but improve the editor experience.
+- Preview updates work in real-time via Storybook's channel API.
+- Story-specific imports are merged with global imports (story-specific takes precedence).
 
 <br />
 

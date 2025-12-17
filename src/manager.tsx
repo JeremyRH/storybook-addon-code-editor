@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { AddonPanel } from 'storybook/internal/components';
-import { addons, types, useChannel } from 'storybook/manager-api';
+import {
+  addons,
+  types,
+  useChannel,
+  useStorybookApi,
+  useStorybookState,
+} from 'storybook/manager-api';
 import { addonId, EVENTS, panelId } from './constants';
 import { createStore } from './createStore';
 import Editor from './Editor/Editor';
@@ -8,24 +14,61 @@ import type { StoryState } from './index';
 
 const store = createStore<StoryState>();
 
-// Registry for imports available in composition mode (set via setupCompositionImports)
-const compositionImportsRegistry: Record<string, Record<string, unknown>> = {};
+// Store type definitions received from preview frames (for editor intellisense)
+const previewTypeDefinitions: Record<string, string> = {};
+const typeDefinitionCallbacks = new Set<(defs: Record<string, string>) => void>();
+
+// Subscribe to type definition updates
+function subscribeToTypeDefinitions(callback: (defs: Record<string, string>) => void): () => void {
+  typeDefinitionCallbacks.add(callback);
+  // Immediately call with current definitions
+  if (Object.keys(previewTypeDefinitions).length > 0) {
+    callback(previewTypeDefinitions);
+  }
+  return () => {
+    typeDefinitionCallbacks.delete(callback);
+  };
+}
+
+// Update type definitions and notify subscribers
+function updateTypeDefinitions(defs: Record<string, string>) {
+  Object.assign(previewTypeDefinitions, defs);
+  typeDefinitionCallbacks.forEach((cb) => cb(previewTypeDefinitions));
+}
+
+// Setup channel listener for type definitions from preview
+let channelSetup = false;
+function setupManagerChannel() {
+  if (channelSetup) return;
+  channelSetup = true;
+
+  const channel = addons.getChannel();
+
+  // Listen for preview ready events with type definitions
+  channel.on(EVENTS.PREVIEW_READY, (data: { typeDefinitions?: Record<string, string> }) => {
+    if (data.typeDefinitions) {
+      updateTypeDefinitions(data.typeDefinitions);
+    }
+  });
+
+  // Listen for state responses with type definitions
+  channel.on(EVENTS.STATE_RESPONSE, (data: { typeDefinitions?: Record<string, string> }) => {
+    if (data.typeDefinitions) {
+      updateTypeDefinitions(data.typeDefinitions);
+    }
+  });
+}
 
 /**
- * Register imports that will be available when viewing composed Storybooks.
- * Call this in your manager.ts to make imports available for composed stories.
- *
- * @example
- * // In .storybook/manager.ts
- * import { setupCompositionImports } from 'storybook-addon-code-editor';
- * import * as MyLibrary from 'my-library';
- *
- * setupCompositionImports({
- *   'my-library': MyLibrary,
- * });
+ * @deprecated No longer needed. The preview frame now handles all imports.
+ * Type definitions are automatically sent from the preview to the manager.
  */
-export function setupCompositionImports(imports: Record<string, Record<string, unknown>>) {
-  Object.assign(compositionImportsRegistry, imports);
+export function setupCompositionImports(_imports: Record<string, Record<string, unknown>>) {
+  console.warn(
+    'setupCompositionImports is deprecated and no longer needed. ' +
+      'The preview frame now handles all imports automatically. ' +
+      'You can remove the setupCompositionImports call from your manager.ts.'
+  );
 }
 
 interface LiveCodeEditorParams {
@@ -37,123 +80,140 @@ interface LiveCodeEditorParams {
 }
 
 addons.register(addonId, (api) => {
-  const getCodeEditorParams = (): LiveCodeEditorParams | undefined =>
-    (api.getCurrentStoryData()?.parameters as any)?.liveCodeEditor;
-
-  const getCodeEditorStoryId = (): string | undefined => getCodeEditorParams()?.id;
+  // Setup channel listener for type definitions from preview
+  setupManagerChannel();
 
   addons.add(panelId, {
     id: addonId,
     title: 'Live code editor',
     type: types.PANEL,
     disabled: () => {
-      const params = getCodeEditorParams();
+      const params = (api.getCurrentStoryData()?.parameters as any)?.liveCodeEditor;
       // Show panel if we have either a store entry OR code in parameters (composition)
       return !params?.id && !params?.code;
     },
     render({ active }) {
-      const params = getCodeEditorParams();
-      const storyId = params?.id;
-      const currentStoryId = api.getCurrentStoryData()?.id;
-
-      if (!active) {
-        return null;
-      }
-
-      // Try to get state from store first (local Storybook)
-      let storyState = storyId ? store.getValue(storyId) : undefined;
-
-      // If no store state but we have code in parameters (composition mode), create state from params
-      if (!storyState && params?.code) {
-        // Build available imports from registry based on keys in parameters
-        const availableImports: Record<string, Record<string, unknown>> = {};
-        const missingImportKeys: string[] = [];
-
-        if (params.availableImportKeys) {
-          for (const key of params.availableImportKeys) {
-            if (compositionImportsRegistry[key]) {
-              availableImports[key] = compositionImportsRegistry[key];
-            } else {
-              missingImportKeys.push(key);
-            }
-          }
-        }
-
-        storyState = {
-          code: params.code,
-          defaultEditorOptions: params.defaultEditorOptions,
-          availableImports: Object.keys(availableImports).length > 0 ? availableImports : undefined,
-        };
-
-        // Use a composite key for composed stories (they don't have unique store IDs)
-        const effectiveStoryId = storyId || `composed_${currentStoryId || 'unknown'}`;
-
-        return (
-          <AddonPanel active={true}>
-            <CompositionEditor
-              storyState={storyState}
-              storyId={effectiveStoryId}
-              currentStoryId={currentStoryId}
-              isComposed={true}
-              missingImports={missingImportKeys}
-            />
-          </AddonPanel>
-        );
-      }
-
-      // No state available from either source
-      if (!storyState) {
-        return (
-          <AddonPanel active={true}>
-            <div style={{ padding: '1rem', color: '#666' }}>
-              <p>Live code editor is not available for this story.</p>
-              <p style={{ fontSize: '0.9em', marginTop: '0.5rem' }}>
-                This may be a composed Storybook. To enable editing, register the required imports
-                in your manager.ts using <code>setupCompositionImports()</code>.
-              </p>
-            </div>
-          </AddonPanel>
-        );
-      }
-
-      // Use a composite key for composed stories (they don't have unique store IDs)
-      const effectiveStoryId = storyId || `composed_${currentStoryId || 'unknown'}`;
-      const isComposed = !storyId;
-
-      return (
-        <AddonPanel active={true}>
-          <CompositionEditor
-            storyState={storyState}
-            storyId={effectiveStoryId}
-            currentStoryId={currentStoryId}
-            isComposed={isComposed}
-          />
-        </AddonPanel>
-      );
+      // Use a wrapper component that properly reacts to story changes
+      return <LiveCodeEditorPanel active={active ?? false} />;
     },
   });
 });
 
-// Separate component to handle state updates properly
+// Panel component that uses hooks to properly react to story changes
+function LiveCodeEditorPanel({ active }: { active: boolean }) {
+  // useStorybookState gives us reactive updates when story changes
+  const state = useStorybookState();
+  const api = useStorybookApi();
+
+  // Get current story ID from state (triggers re-render on story change)
+  const currentStoryId = state.storyId;
+
+  // Get fresh story data on every render
+  const storyData = api.getCurrentStoryData();
+  const params = (storyData?.parameters as any)?.liveCodeEditor as LiveCodeEditorParams | undefined;
+  const storyId = params?.id;
+
+  if (!active) {
+    return null;
+  }
+
+  // Try to get state from store first (local Storybook)
+  let storyState = storyId ? store.getValue(storyId) : undefined;
+
+  // If no store state but we have code in parameters (composition mode), create state from params
+  // The preview frame handles all imports - we just need the code for the editor
+  if (!storyState && params?.code) {
+    storyState = {
+      code: params.code,
+      defaultEditorOptions: params.defaultEditorOptions,
+    };
+
+    // Use a composite key for composed stories (they don't have unique store IDs)
+    const effectiveStoryId = storyId || `composed_${currentStoryId || 'unknown'}`;
+    // Include code hash in key to force remount when code changes
+    const editorKey = `composed_${currentStoryId}_${params.code.length}`;
+
+    return (
+      <AddonPanel active={true}>
+        <CompositionEditor
+          key={editorKey}
+          editorKey={editorKey}
+          storyState={storyState}
+          storyId={effectiveStoryId}
+          currentStoryId={currentStoryId}
+          isComposed={true}
+        />
+      </AddonPanel>
+    );
+  }
+
+  // No state available from either source
+  if (!storyState) {
+    return (
+      <AddonPanel active={true}>
+        <div style={{ padding: '1rem', color: '#666' }}>
+          <p>Live code editor is not available for this story.</p>
+          <p style={{ fontSize: '0.9em', marginTop: '0.5rem' }}>
+            Make sure to use <code>makeLiveEditStory</code> and <code>registerLiveEditPreview</code>{' '}
+            in the composed Storybook.
+          </p>
+        </div>
+      </AddonPanel>
+    );
+  }
+
+  // Use a composite key for composed stories (they don't have unique store IDs)
+  const effectiveStoryId = storyId || `composed_${currentStoryId || 'unknown'}`;
+  const isComposed = !storyId;
+  // Include 'local' prefix to differentiate from composed stories
+  const editorKey = `local_${effectiveStoryId}`;
+
+  return (
+    <AddonPanel active={true}>
+      <CompositionEditor
+        key={editorKey}
+        editorKey={editorKey}
+        storyState={storyState}
+        storyId={effectiveStoryId}
+        currentStoryId={currentStoryId}
+        isComposed={isComposed}
+      />
+    </AddonPanel>
+  );
+}
+
+/**
+ * Editor component that handles both local and composed story editing.
+ * Uses keys to force remount when switching between different stories,
+ * ensuring the Monaco editor properly resets its content.
+ */
 function CompositionEditor({
   storyState,
   storyId,
   currentStoryId,
   isComposed,
-  missingImports = [],
+  editorKey,
 }: {
   storyState: StoryState;
   storyId: string;
   currentStoryId?: string;
   isComposed: boolean;
-  missingImports?: string[];
+  editorKey: string;
 }) {
-  // Track local code changes for composed stories
+  // Track local code changes - initialize with storyState.code
   const [localCode, setLocalCode] = React.useState(storyState.code);
-  const [isWarningExpanded, setIsWarningExpanded] = React.useState(false);
+  // Track type definitions from preview
+  const [typeDefs, setTypeDefs] = React.useState<Record<string, string>>(previewTypeDefinitions);
 
   // Use Storybook channel to communicate with preview
   const emit = useChannel({});
+
+  // Subscribe to type definition updates
+  React.useEffect(() => {
+    return subscribeToTypeDefinitions((defs) => {
+      setTypeDefs({ ...defs });
+    });
+  }, []);
 
   // Reset local code when story changes
   React.useEffect(() => {
@@ -166,10 +226,10 @@ function CompositionEditor({
 
       if (isComposed) {
         // For composed stories, emit code update via channel to preview
+        // The preview frame handles all imports - we just send the code
         emit(EVENTS.CODE_UPDATE, {
           storyId: currentStoryId,
           code: newCode,
-          availableImports: storyState.availableImports,
         });
       } else {
         // For local stories, update the store (which updates preview)
@@ -177,6 +237,23 @@ function CompositionEditor({
       }
     },
     [storyId, currentStoryId, storyState, isComposed, emit]
+  );
+
+  // Create modifyEditor function that adds type definitions to Monaco
+  const modifyEditor = React.useCallback(
+    (monaco: any, editor: any) => {
+      // Add type definitions from preview to Monaco
+      Object.entries(typeDefs).forEach(([moduleName, types]) => {
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(
+          types,
+          `file:///node_modules/${moduleName}/index.d.ts`
+        );
+      });
+
+      // Also call the original modifyEditor if provided
+      storyState.modifyEditor?.(monaco, editor);
+    },
+    [typeDefs, storyState.modifyEditor]
   );
 
   return (
@@ -191,80 +268,15 @@ function CompositionEditor({
         flexDirection: 'column',
       }}
     >
-      {missingImports.length > 0 && (
-        <div
-          style={{
-            backgroundColor: '#fff3cd',
-            borderBottom: '1px solid #ffc107',
-            fontSize: '0.85em',
-            color: '#856404',
-            flexShrink: 0,
-          }}
-        >
-          <button
-            onClick={() => setIsWarningExpanded(!isWarningExpanded)}
-            style={{
-              width: '100%',
-              padding: '0.5rem 1rem',
-              backgroundColor: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              color: '#856404',
-              fontSize: 'inherit',
-              textAlign: 'left',
-            }}
-          >
-            <span>
-              <strong>⚠️ Missing imports for composition</strong>
-            </span>
-            <span style={{ marginLeft: '0.5rem', fontSize: '0.8em' }}>
-              {isWarningExpanded ? '▲' : '▼'}
-            </span>
-          </button>
-          {isWarningExpanded && (
-            <div style={{ padding: '0 1rem 0.75rem 1rem', fontSize: '0.9em' }}>
-              <p style={{ margin: '0 0 0.5rem 0' }}>
-                The following imports are not registered:{' '}
-                <code
-                  style={{
-                    backgroundColor: '#ffeeba',
-                    padding: '0.1rem 0.3rem',
-                    borderRadius: '3px',
-                  }}
-                >
-                  {missingImports.join(', ')}
-                </code>
-              </p>
-              <p style={{ margin: '0 0 0.5rem 0' }}>
-                Register these imports in your host Storybook's <code>manager.ts</code> using{' '}
-                <code>setupCompositionImports()</code> for full functionality.
-              </p>
-              <pre
-                style={{
-                  marginTop: '0.5rem',
-                  padding: '0.5rem',
-                  backgroundColor: '#ffeeba',
-                  borderRadius: '4px',
-                  overflow: 'auto',
-                  fontSize: '0.85em',
-                }}
-              >
-                {`// .storybook/manager.ts
-import { setupCompositionImports } from 'storybook-addon-code-editor/manager';
-
-setupCompositionImports({
-${missingImports.map((imp) => `  '${imp}': /* import ${imp} */,`).join('\n')}
-});`}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
       <div style={{ flex: 1, minHeight: 0 }}>
-        <Editor {...storyState} onInput={handleInput} value={localCode} parentSize="100%" />
+        <Editor
+          key={editorKey}
+          {...storyState}
+          modifyEditor={modifyEditor}
+          onInput={handleInput}
+          value={localCode}
+          parentSize="100%"
+        />
       </div>
     </div>
   );

@@ -20,39 +20,36 @@ When viewing a composed story that uses `makeLiveEditStory`:
 
 1. The **code editor panel** is available in the host Storybook
 2. The **preview** updates in real-time as you edit code
-3. Any **missing imports** are shown with a helpful warning message
+3. The **preview frame handles all compilation** - no setup needed in the host!
 
 ## Setup Guide
 
 ### 1. In the Composed Storybook (the one being embedded)
 
-Register the imports in `preview.ts`:
+Register the imports in `preview.ts` using `registerLiveEditPreview`:
 
 ```ts
 // .storybook/preview.ts
-import { registerAvailableImports } from 'storybook-addon-code-editor';
+import { registerLiveEditPreview } from 'storybook-addon-code-editor';
 import * as MyLibrary from 'my-library';
 
-registerAvailableImports({
-  'my-library': MyLibrary,
+registerLiveEditPreview({
+  imports: {
+    'my-library': MyLibrary,
+  },
+  // Optional: provide type definitions for editor intellisense
+  typeDefinitions: {
+    'my-library': `
+      export interface ButtonProps { label: string; }
+      export const Button: React.FC<ButtonProps>;
+    `,
+  },
 });
 ```
 
 ### 2. In the Host Storybook (the one doing the composing)
 
-Register the same imports in `manager.ts`:
-
-```ts
-// .storybook/manager.ts
-import { setupCompositionImports } from 'storybook-addon-code-editor/manager';
-import * as MyLibrary from 'my-library';
-
-setupCompositionImports({
-  'my-library': MyLibrary,
-});
-```
-
-And add the composition reference in `main.ts`:
+Just add the composition reference in `main.ts` - **no manager.ts setup needed!**
 
 ```ts
 // .storybook/main.ts
@@ -66,6 +63,8 @@ const config: StorybookConfig = {
   },
 };
 ```
+
+That's it! The host Storybook automatically gets live code editing for composed stories.
 
 ## Testing Composition Locally
 
@@ -87,14 +86,9 @@ To test the composition example in this project:
 
 3. Open [http://localhost:6006](http://localhost:6006) and look for the "Composed Storybook" section in the sidebar.
 
-## Missing Imports Warning
+## Key Benefits
 
-If the host Storybook is missing some imports that the composed story needs, you'll see a warning banner in the editor panel:
-
-> ⚠️ Missing imports for composition
-
-Click the warning to expand it and see:
-- Which imports are missing
-- Example code to register them
-
-This helps you quickly identify and fix configuration issues.
+- **Zero host configuration**: The host Storybook needs no special setup for imports
+- **Self-contained preview**: All dependencies are bundled in the composed Storybook
+- **Optional type definitions**: Improve editor intellisense by providing `.d.ts` content
+- **Real-time updates**: Code changes reflect immediately in the preview

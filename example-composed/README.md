@@ -9,16 +9,26 @@ This is an example Storybook that demonstrates how to set up a Storybook for com
 The key setup is in `.storybook/preview.ts`:
 
 ```ts
-import { registerAvailableImports } from 'storybook-addon-code-editor';
+import { registerLiveEditPreview } from 'storybook-addon-code-editor';
 import * as ComposedLibrary from '../src/index';
 
-// Register imports for composition support
-registerAvailableImports({
-  'composed-library': ComposedLibrary,
+// Register imports for live code editing
+// The preview frame handles all compilation - no setup needed in the host Storybook!
+registerLiveEditPreview({
+  imports: {
+    'composed-library': ComposedLibrary,
+  },
+  // Optional: provide type definitions for editor intellisense
+  typeDefinitions: {
+    'composed-library': `
+      export interface CardProps { title: string; children?: React.ReactNode; }
+      export const Card: React.FC<CardProps>;
+    `,
+  },
 });
 ```
 
-This registers the imports that should be available when this Storybook is embedded in another Storybook.
+This registers the imports that should be available when this Storybook is embedded in another Storybook. The host Storybook needs no additional configuration.
 
 ## Running
 

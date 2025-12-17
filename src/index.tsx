@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { EVENTS } from './constants';
 import { createStore } from './createStore';
 import Editor, { EditorOptions } from './Editor/Editor';
 import ErrorBoundary from './ErrorBoundary';
@@ -12,22 +13,63 @@ export interface StoryState {
   defaultEditorOptions?: EditorOptions;
 }
 
-// Registry for available imports that can be used in composition
+// Registry for available imports registered via registerLiveEditPreview
 const globalImportsRegistry: Record<string, Record<string, unknown>> = {};
 
+// Type definitions registry for editor intellisense
+const typeDefinitionsRegistry: Record<string, string> = {};
+
 /**
- * Register imports that will be available for live code editing in composed Storybooks.
- * Call this in your preview.ts to make imports available when your Storybook is composed.
+ * Register imports and optional type definitions for live code editing.
+ * Call this in your preview.ts to make imports available for live editing.
+ *
+ * In composition mode, the type definitions will be sent to the host Storybook
+ * so the editor can provide intellisense without the host needing any configuration.
+ *
+ * @example
+ * // In .storybook/preview.ts
+ * import { registerLiveEditPreview } from 'storybook-addon-code-editor';
+ * import * as MyLibrary from 'my-library';
+ *
+ * registerLiveEditPreview({
+ *   imports: {
+ *     'my-library': MyLibrary,
+ *   },
+ *   // Optional: provide .d.ts content for editor intellisense
+ *   typeDefinitions: {
+ *     'my-library': `
+ *       export interface ButtonProps { label: string; }
+ *       export const Button: React.FC<ButtonProps>;
+ *     `,
+ *   },
+ * });
  */
-export function registerAvailableImports(imports: Record<string, Record<string, unknown>>) {
-  Object.assign(globalImportsRegistry, imports);
+export function registerLiveEditPreview(config: {
+  imports: Record<string, Record<string, unknown>>;
+  typeDefinitions?: Record<string, string>;
+}) {
+  Object.assign(globalImportsRegistry, config.imports);
+
+  if (config.typeDefinitions) {
+    Object.assign(typeDefinitionsRegistry, config.typeDefinitions);
+  }
+
+  // Setup channel communication to send state to manager
+  setupPreviewChannelCommunication();
 }
 
 /**
- * Get all registered imports (including globally registered ones)
+ * Get all registered imports
  */
 export function getRegisteredImports(): Record<string, Record<string, unknown>> {
   return { ...globalImportsRegistry };
+}
+
+/**
+ * Get all registered type definitions
+ */
+export function getTypeDefinitions(): Record<string, string> {
+  return { ...typeDefinitionsRegistry };
 }
 
 const store = createStore<StoryState>();
@@ -38,7 +80,6 @@ const noop = () => {};
 interface ChannelCodeUpdate {
   storyId: string;
   code: string;
-  availableImports?: Record<string, Record<string, unknown>>;
 }
 
 // Store for channel-based code updates (used in composition)
@@ -57,10 +98,16 @@ function notifyChannelUpdate(update: ChannelCodeUpdate) {
   channelUpdateCallbacks.forEach((cb) => cb(update));
 }
 
-// Setup channel listener for code updates from manager
+// Setup channel communication for preview frame
 let channelListenerSetup = false;
 
-function setupChannelListener() {
+/**
+ * Sets up bidirectional channel communication between preview and manager.
+ * - Listens for CODE_UPDATE from manager to update preview
+ * - Responds to REQUEST_STATE with current imports and type definitions
+ * - Emits PREVIEW_READY when setup is complete
+ */
+function setupPreviewChannelCommunication() {
   if (channelListenerSetup) return;
   channelListenerSetup = true;
 
@@ -68,10 +115,27 @@ function setupChannelListener() {
   import('storybook/preview-api')
     .then(({ addons }) => {
       const channel = addons.getChannel();
-      const { EVENTS } = require('./constants');
 
+      // Listen for code updates from manager
       channel.on(EVENTS.CODE_UPDATE, (data: ChannelCodeUpdate) => {
         notifyChannelUpdate(data);
+      });
+
+      // Listen for state requests from manager
+      channel.on(EVENTS.REQUEST_STATE, (data: { storyId: string }) => {
+        // Send back current state including available imports and type definitions
+        channel.emit(EVENTS.STATE_RESPONSE, {
+          storyId: data.storyId,
+          availableImportKeys: Object.keys(globalImportsRegistry),
+          typeDefinitions: typeDefinitionsRegistry,
+        });
+      });
+
+      // Emit that preview is ready with type definitions
+      // This allows manager to receive type definitions without requesting
+      channel.emit(EVENTS.PREVIEW_READY, {
+        availableImportKeys: Object.keys(globalImportsRegistry),
+        typeDefinitions: typeDefinitionsRegistry,
       });
     })
     .catch(() => {
@@ -97,56 +161,6 @@ function LivePreview({ storyId, storyArgs }: { storyId: string; storyArgs?: any 
     <ErrorBoundary resetRef={errorBoundaryResetRef}>
       <Preview
         availableImports={{ react: React, ...state!.availableImports }}
-        code={fullCode}
-        componentProps={storyArgs}
-      />
-    </ErrorBoundary>
-  );
-}
-
-/**
- * LivePreview component that listens to channel updates for composition support.
- * This allows the preview to update when code is changed in a composed Storybook.
- */
-function ChannelLivePreview({
-  initialCode,
-  storyId,
-  storyArgs,
-  availableImports,
-}: {
-  initialCode: string;
-  storyId: string;
-  storyArgs?: any;
-  availableImports?: Record<string, Record<string, unknown>>;
-}) {
-  const [code, setCode] = React.useState(initialCode);
-  const [imports, setImports] = React.useState(availableImports);
-  const errorBoundaryResetRef = React.useRef(noop);
-
-  // Setup channel listener on mount
-  React.useEffect(() => {
-    setupChannelListener();
-  }, []);
-
-  // Listen for channel updates
-  React.useEffect(() => {
-    return subscribeToChannelUpdates((update) => {
-      if (update.storyId === storyId) {
-        setCode(update.code);
-        if (update.availableImports) {
-          setImports(update.availableImports);
-        }
-        errorBoundaryResetRef.current();
-      }
-    });
-  }, [storyId]);
-
-  const fullCode = hasReactRegex.test(code) ? code : "import * as React from 'react';" + code;
-
-  return (
-    <ErrorBoundary resetRef={errorBoundaryResetRef}>
-      <Preview
-        availableImports={{ react: React, ...globalImportsRegistry, ...imports }}
         code={fullCode}
         componentProps={storyArgs}
       />
@@ -183,6 +197,7 @@ type MinimalStory = MinimalStoryObj | (AnyFn & MinimalStoryObj);
 
 /**
  * Combined preview component that supports both local store updates and channel updates (for composition).
+ * The preview frame handles all compilation - no imports needed in the manager.
  */
 function CombinedLivePreview({
   storeId,
@@ -201,9 +216,9 @@ function CombinedLivePreview({
   const [channelCode, setChannelCode] = React.useState<string | null>(null);
   const errorBoundaryResetRef = React.useRef(noop);
 
-  // Setup channel listener on mount
+  // Setup channel communication on mount
   React.useEffect(() => {
-    setupChannelListener();
+    setupPreviewChannelCommunication();
   }, []);
 
   // Listen for store updates (local editing)
@@ -215,7 +230,7 @@ function CombinedLivePreview({
     });
   }, [storeId]);
 
-  // Listen for channel updates (composition editing)
+  // Listen for channel updates (composition editing from manager)
   React.useEffect(() => {
     return subscribeToChannelUpdates((update) => {
       if (update.storyId === storyId) {
@@ -227,7 +242,14 @@ function CombinedLivePreview({
 
   // Use channel code if available, otherwise use store state
   const currentCode = channelCode ?? state?.code ?? initialCode;
-  const currentImports = state?.availableImports ?? availableImports;
+
+  // Merge imports: story-specific imports + globally registered imports
+  // This allows the preview to have all dependencies bundled
+  const currentImports = {
+    ...globalImportsRegistry,
+    ...availableImports,
+    ...state?.availableImports,
+  };
 
   const fullCode = hasReactRegex.test(currentCode)
     ? currentCode
@@ -236,7 +258,7 @@ function CombinedLivePreview({
   return (
     <ErrorBoundary resetRef={errorBoundaryResetRef}>
       <Preview
-        availableImports={{ react: React, ...globalImportsRegistry, ...currentImports }}
+        availableImports={{ react: React, ...currentImports }}
         code={fullCode}
         componentProps={storyArgs}
       />

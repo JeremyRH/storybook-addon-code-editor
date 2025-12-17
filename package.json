@@ -34,9 +34,9 @@
   "scripts": {
     "build": "node scripts/rm.js dist && tsc --outDir dist && node scripts/post-build.js",
     "format": "prettier src example/src --write",
-    "start-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
+    "start-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz --registry=https://registry.npmjs.org/ && npm run storybook:dev",
     "build-example": "npm run build && cd example && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:build",
-    "start-composed": "npm run build && cd example-composed && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:dev",
+    "start-composed": "npm run build && cd example-composed && npm i ../storybook-addon-code-editor-0.0.0.tgz --registry=https://registry.npmjs.org/ && npm run storybook:dev",
     "build-composed": "npm run build && cd example-composed && npm i ../storybook-addon-code-editor-0.0.0.tgz && npm run storybook:build",
     "test": "vitest run"
   },
