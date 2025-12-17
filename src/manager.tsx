@@ -44,19 +44,31 @@ function setupManagerChannel() {
 
   const channel = addons.getChannel();
 
-  // Listen for preview ready events with type definitions
+  // Listen for preview ready events with type definitions (same-origin)
   channel.on(EVENTS.PREVIEW_READY, (data: { typeDefinitions?: Record<string, string> }) => {
     if (data.typeDefinitions) {
       updateTypeDefinitions(data.typeDefinitions);
     }
   });
 
-  // Listen for state responses with type definitions
+  // Listen for state responses with type definitions (same-origin)
   channel.on(EVENTS.STATE_RESPONSE, (data: { typeDefinitions?: Record<string, string> }) => {
     if (data.typeDefinitions) {
       updateTypeDefinitions(data.typeDefinitions);
     }
   });
+
+  // Listen for postMessage events for type definitions (cross-origin composition)
+  if (typeof window !== 'undefined') {
+    window.addEventListener('message', (event) => {
+      // Handle type definitions from composed Storybook previews
+      if (event.data?.type === EVENTS.PREVIEW_READY || event.data?.type === EVENTS.STATE_RESPONSE) {
+        if (event.data.typeDefinitions) {
+          updateTypeDefinitions(event.data.typeDefinitions);
+        }
+      }
+    });
+  }
 }
 
 /**
@@ -67,7 +79,7 @@ export function setupCompositionImports(_imports: Record<string, Record<string, 
   console.warn(
     'setupCompositionImports is deprecated and no longer needed. ' +
       'The preview frame now handles all imports automatically. ' +
-      'You can remove the setupCompositionImports call from your manager.ts.'
+      'You can remove the setupCompositionImports call from your manager.ts.',
   );
 }
 
@@ -208,12 +220,65 @@ function CompositionEditor({
   // Use Storybook channel to communicate with preview
   const emit = useChannel({});
 
+  // Track Monaco instance to add types dynamically
+  const monacoRef = React.useRef<any>(null);
+
   // Subscribe to type definition updates
   React.useEffect(() => {
     return subscribeToTypeDefinitions((defs) => {
       setTypeDefs({ ...defs });
     });
   }, []);
+
+  // When typeDefs change and we have a Monaco instance, add the types
+  React.useEffect(() => {
+    if (!monacoRef.current || Object.keys(typeDefs).length === 0) return;
+
+    const monaco = monacoRef.current;
+
+    // Track which modules we've seen to build path mappings
+    const moduleMainFiles: Record<string, string[]> = {};
+
+    // Helper to extract package name from file path
+    // e.g., "file:///node_modules/ag-grid-community/dist/types/src/main.d.ts" -> "ag-grid-community"
+    // e.g., "file:///node_modules/@bbnpm/bb-ui-framework/index.d.ts" -> "@bbnpm/bb-ui-framework"
+    const extractPackageName = (filePath: string): string | null => {
+      const match = filePath.match(/^file:\/\/\/node_modules\/(@[^/]+\/[^/]+|[^/]+)\//);
+      return match ? match[1] : null;
+    };
+
+    // Add type definitions to Monaco
+    Object.entries(typeDefs).forEach(([key, types]) => {
+      // Support both formats:
+      // 1. Full paths like "file:///node_modules/ag-grid-community/dist/types/src/main.d.ts"
+      // 2. Simple module names like "ag-grid-react" -> "file:///node_modules/ag-grid-react/index.d.ts"
+      const filePath = key.startsWith('file:///') ? key : `file:///node_modules/${key}/index.d.ts`;
+
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(types, filePath);
+
+      // Extract module name from path to build path mappings
+      const moduleName = extractPackageName(filePath);
+      if (moduleName && (filePath.includes('index.d.ts') || filePath.includes('main.d.ts'))) {
+        if (!moduleMainFiles[moduleName]) {
+          moduleMainFiles[moduleName] = [];
+        }
+        moduleMainFiles[moduleName].push(filePath);
+      }
+    });
+
+    // Configure module resolution paths
+    const paths: Record<string, string[]> = {};
+    Object.entries(moduleMainFiles).forEach(([moduleName, files]) => {
+      paths[moduleName] = files;
+    });
+
+    if (Object.keys(paths).length > 0) {
+      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+        ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
+        paths,
+      });
+    }
+  }, [typeDefs]);
 
   // Reset local code when story changes
   React.useEffect(() => {
@@ -231,29 +296,82 @@ function CompositionEditor({
           storyId: currentStoryId,
           code: newCode,
         });
+
+        // Also send via postMessage for composition (cross-iframe communication)
+        // The composed Storybook's preview iframe needs to receive this
+        // Find and message all iframes (composed Storybook previews)
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach((iframe) => {
+          try {
+            iframe.contentWindow?.postMessage(
+              {
+                type: EVENTS.CODE_UPDATE,
+                storyId: currentStoryId,
+                code: newCode,
+              },
+              '*',
+            );
+          } catch (e) {
+            // Ignore cross-origin errors for non-composed iframes
+          }
+        });
       } else {
         // For local stories, update the store (which updates preview)
         store.setValue(storyId, { ...storyState, code: newCode });
       }
     },
-    [storyId, currentStoryId, storyState, isComposed, emit]
+    [storyId, currentStoryId, storyState, isComposed, emit],
   );
 
-  // Create modifyEditor function that adds type definitions to Monaco
+  // Create modifyEditor function that captures Monaco instance and adds initial type definitions
   const modifyEditor = React.useCallback(
     (monaco: any, editor: any) => {
-      // Add type definitions from preview to Monaco
-      Object.entries(typeDefs).forEach(([moduleName, types]) => {
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(
-          types,
-          `file:///node_modules/${moduleName}/index.d.ts`
-        );
-      });
+      // Store Monaco reference for later type definition updates
+      monacoRef.current = monaco;
+
+      // Helper to extract package name from file path
+      const extractPackageName = (filePath: string): string | null => {
+        const match = filePath.match(/^file:\/\/\/node_modules\/(@[^/]+\/[^/]+|[^/]+)\//);
+        return match ? match[1] : null;
+      };
+
+      // Add any type definitions we already have
+      if (Object.keys(typeDefs).length > 0) {
+        const moduleMainFiles: Record<string, string[]> = {};
+
+        Object.entries(typeDefs).forEach(([key, types]) => {
+          const filePath = key.startsWith('file:///')
+            ? key
+            : `file:///node_modules/${key}/index.d.ts`;
+
+          monaco.languages.typescript.typescriptDefaults.addExtraLib(types, filePath);
+
+          const moduleName = extractPackageName(filePath);
+          if (moduleName && (filePath.includes('index.d.ts') || filePath.includes('main.d.ts'))) {
+            if (!moduleMainFiles[moduleName]) {
+              moduleMainFiles[moduleName] = [];
+            }
+            moduleMainFiles[moduleName].push(filePath);
+          }
+        });
+
+        const paths: Record<string, string[]> = {};
+        Object.entries(moduleMainFiles).forEach(([moduleName, files]) => {
+          paths[moduleName] = files;
+        });
+
+        if (Object.keys(paths).length > 0) {
+          monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+            ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
+            paths,
+          });
+        }
+      }
 
       // Also call the original modifyEditor if provided
       storyState.modifyEditor?.(monaco, editor);
     },
-    [typeDefs, storyState.modifyEditor]
+    [typeDefs, storyState.modifyEditor],
   );
 
   return (

@@ -227,11 +227,38 @@ interface MonacoSetup {
 
 ## Storybook Composition
 
-This addon supports [Storybook Composition](https://storybook.js.org/docs/sharing/storybook-composition), allowing live code editing to work when embedding remote Storybooks.
+This addon supports [Storybook Composition](https://storybook.js.org/docs/sharing/storybook-composition), allowing live code editing to work when embedding remote Storybooks across different origins.
 
 ### How it works
 
-When using composition, the preview iframe (from the composed Storybook) handles all the code compilation. The code editor panel in the host Storybook simply sends code updates via Storybook's channel API. This means **the host Storybook requires no special configuration** - all imports are bundled in the composed Storybook's preview.
+When using composition, the preview iframe (from the composed Storybook) handles all the code compilation. The code editor panel in the host Storybook sends code updates via `postMessage` for cross-origin communication. This means **the host Storybook requires no special configuration** - all imports are bundled in the composed Storybook's preview.
+
+**Architecture:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Host Storybook (e.g., localhost:6006)                           │
+│                                                                 │
+│  ┌─────────────────────┐    ┌─────────────────────────────────┐ │
+│  │ Manager Panel       │    │ Preview Area                    │ │
+│  │ ┌─────────────────┐ │    │ ┌─────────────────────────────┐ │ │
+│  │ │ Monaco Editor   │ │    │ │ Composed Storybook iframe   │ │ │
+│  │ │                 │◄┼────┼─┤ (e.g., localhost:6007)      │ │ │
+│  │ │ - Code editing  │ │    │ │                             │ │ │
+│  │ │ - TypeScript    │ │    │ │ ┌─────────────────────────┐ │ │ │
+│  │ │   intellisense  │ │    │ │ │ Preview frame           │ │ │ │
+│  │ │                 │─┼────┼─┼►│ - Imports registry      │ │ │ │
+│  │ └─────────────────┘ │    │ │ │ - Code compilation      │ │ │ │
+│  │                     │    │ │ │ - Type definitions      │ │ │ │
+│  │ postMessage:        │    │ │ └─────────────────────────┘ │ │ │
+│  │ ◄── TYPE_DEFINITIONS│    │ │                             │ │ │
+│  │ ──► CODE_UPDATE     │    │ └─────────────────────────────┘ │ │
+│  └─────────────────────┘    └─────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+1. **Type definitions flow**: Composed Storybook → Host Manager (for intellisense)
+2. **Code updates flow**: Host Manager → Composed Preview (for live rendering)
 
 ### Setup
 
@@ -255,6 +282,80 @@ registerLiveEditPreview({
       export interface ButtonProps { label: string; onClick?: () => void; }
       export const Button: React.FC<ButtonProps>;
     `,
+  },
+});
+```
+
+#### Advanced: Using Generated Type Definitions
+
+For full TypeScript intellisense with all your dependencies, you can generate a JSON file containing type definitions from `node_modules` and your local package:
+
+```js
+// scripts/generate-types.mjs
+import fs from 'fs';
+import path from 'path';
+
+const types = {};
+
+// Function to recursively read .d.ts files from a directory
+function readTypesFromDir(dir, prefix) {
+  const files = fs.readdirSync(dir, { withFileTypes: true });
+  for (const file of files) {
+    const fullPath = path.join(dir, file.name);
+    if (file.isDirectory() && file.name !== 'node_modules') {
+      readTypesFromDir(fullPath, prefix);
+    } else if (file.name.endsWith('.d.ts')) {
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const relativePath = path.relative(dir, fullPath);
+      types[`${prefix}/${relativePath}`] = content;
+    }
+  }
+}
+
+// Add types from node_modules packages
+const packages = [
+  { name: 'my-library', path: 'node_modules/my-library' },
+  // Add more packages as needed
+];
+
+packages.forEach(pkg => {
+  if (fs.existsSync(pkg.path)) {
+    readTypesFromDir(pkg.path, `file:///node_modules/${pkg.name}`);
+  }
+});
+
+// Write to JSON file
+fs.writeFileSync('src/library-types.json', JSON.stringify(types, null, 2));
+```
+
+Then use the generated types in your preview:
+
+```ts
+// .storybook/preview.ts
+import { registerLiveEditPreview, setupMonaco } from 'storybook-addon-code-editor';
+import libraryTypes from '../src/library-types.json';
+
+// Register for composition - types are sent to host automatically
+registerLiveEditPreview({
+  imports: { 'my-library': MyLibrary },
+  typeDefinitions: libraryTypes as Record<string, string>,
+});
+
+// Also setup Monaco for local development
+setupMonaco({
+  onMonacoLoad: (monaco) => {
+    // Add type definitions to Monaco
+    for (const [path, content] of Object.entries(libraryTypes)) {
+      monaco.languages.typescript.typescriptDefaults.addExtraLib(content, path);
+    }
+    
+    // Configure module resolution paths
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
+      paths: {
+        'my-library': ['file:///node_modules/my-library/index.d.ts'],
+      },
+    });
   },
 });
 ```

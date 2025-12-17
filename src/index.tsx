@@ -106,17 +106,67 @@ let channelListenerSetup = false;
  * - Listens for CODE_UPDATE from manager to update preview
  * - Responds to REQUEST_STATE with current imports and type definitions
  * - Emits PREVIEW_READY when setup is complete
+ *
+ * For composition mode, also listens to postMessage from parent window
+ * since the Storybook channel doesn't work across iframe boundaries.
  */
 function setupPreviewChannelCommunication() {
   if (channelListenerSetup) return;
   channelListenerSetup = true;
+
+  // Setup postMessage listener for composition (cross-iframe communication)
+  // This allows the host Storybook's manager to send code updates to the composed preview
+  if (typeof window !== 'undefined') {
+    window.addEventListener('message', (event) => {
+      // Handle code update events from parent window (composition)
+      if (event.data?.type === EVENTS.CODE_UPDATE) {
+        notifyChannelUpdate({
+          storyId: event.data.storyId,
+          code: event.data.code,
+        });
+      }
+
+      // Handle request for type definitions from host manager
+      if (event.data?.type === EVENTS.REQUEST_STATE) {
+        // Send type definitions back to the requesting window
+        event.source?.postMessage(
+          {
+            type: EVENTS.STATE_RESPONSE,
+            typeDefinitions: typeDefinitionsRegistry,
+            availableImportKeys: Object.keys(globalImportsRegistry),
+          },
+          { targetOrigin: '*' },
+        );
+      }
+    });
+
+    // Send type definitions to parent window (for composition)
+    // This allows the host manager to receive type definitions from composed Storybooks
+    if (window.parent && window.parent !== window) {
+      // We're in an iframe - send type definitions to parent
+      const sendTypeDefinitions = () => {
+        window.parent.postMessage(
+          {
+            type: EVENTS.PREVIEW_READY,
+            typeDefinitions: typeDefinitionsRegistry,
+            availableImportKeys: Object.keys(globalImportsRegistry),
+          },
+          '*',
+        );
+      };
+
+      // Send immediately and also after a short delay to ensure parent is ready
+      sendTypeDefinitions();
+      setTimeout(sendTypeDefinitions, 1000);
+    }
+  }
 
   // Dynamically import to avoid issues when running in non-Storybook environments
   import('storybook/preview-api')
     .then(({ addons }) => {
       const channel = addons.getChannel();
 
-      // Listen for code updates from manager
+      // Listen for code updates from manager (same-origin only)
       channel.on(EVENTS.CODE_UPDATE, (data: ChannelCodeUpdate) => {
         notifyChannelUpdate(data);
       });
