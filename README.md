@@ -292,12 +292,6 @@ const packages = [
     root: path.join(nodeModules, 'ag-grid-react/dist/types/src'),
     prefix: 'file:///node_modules/ag-grid-react/dist/types/src'
   },
-  {
-    name: '@bbnpm/bb-ui-framework',
-    root: path.join(nodeModules, '@bbnpm/bb-ui-framework'),
-    prefix: 'file:///node_modules/@bbnpm/bb-ui-framework',
-    exclude: ['node_modules'] // Skip nested node_modules
-  },
   // Add your local package types too
   {
     name: '@my-org/my-package',
@@ -355,7 +349,6 @@ setupMonaco({
       paths: {
         'ag-grid-community': ['file:///node_modules/ag-grid-community/dist/types/src/main.d.ts'],
         'ag-grid-react': ['file:///node_modules/ag-grid-react/dist/types/src/index.d.ts'],
-        '@bbnpm/bb-ui-framework': ['file:///node_modules/@bbnpm/bb-ui-framework/index.d.ts'],
         '@my-org/my-package': ['file:///node_modules/@my-org/my-package/dist/index.d.ts'],
       },
     });

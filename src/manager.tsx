@@ -241,7 +241,6 @@ function CompositionEditor({
 
     // Helper to extract package name from file path
     // e.g., "file:///node_modules/ag-grid-community/dist/types/src/main.d.ts" -> "ag-grid-community"
-    // e.g., "file:///node_modules/@bbnpm/bb-ui-framework/index.d.ts" -> "@bbnpm/bb-ui-framework"
     const extractPackageName = (filePath: string): string | null => {
       const match = filePath.match(/^file:\/\/\/node_modules\/(@[^/]+\/[^/]+|[^/]+)\//);
       return match ? match[1] : null;
