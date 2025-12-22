@@ -68,6 +68,29 @@ function setupManagerChannel() {
         }
       }
     });
+
+    // Request type definitions from all iframes (composed Storybooks)
+    // This is more reliable than waiting for them to send unprompted
+    const requestTypesFromIframes = () => {
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach((iframe) => {
+        try {
+          iframe.contentWindow?.postMessage(
+            { type: 'storybook-addon-code-editor/request-types' },
+            '*',
+          );
+        } catch {
+          // Ignore cross-origin errors for iframes that haven't loaded
+        }
+      });
+    };
+
+    // Request after a short delay to allow iframes to load
+    setTimeout(requestTypesFromIframes, 500);
+    // Also request when story changes (new iframe may have loaded)
+    channel.on('storyChanged', () => {
+      setTimeout(requestTypesFromIframes, 200);
+    });
   }
 }
 

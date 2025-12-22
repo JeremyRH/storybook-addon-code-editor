@@ -188,6 +188,18 @@ interface LiveEditStoryOptions {
 }
 ```
 
+**Import Merge Behavior:**
+
+When using both `registerLiveEditPreview()` and `makeLiveEditStory()`, imports are merged with the following precedence (highest to lowest):
+
+1. `makeLiveEditStory({ availableImports })` - Story-specific imports
+2. `registerLiveEditPreview({ imports })` - Global imports
+
+This allows you to:
+- Define common dependencies globally in `preview.ts`
+- Override or add story-specific dependencies per story
+- Keep heavy dependencies only in stories that need them
+
 ### `setupMonaco`
 
 `setupMonaco` allows customization of [`monaco-editor`](https://github.com/microsoft/monaco-editor).
@@ -484,54 +496,13 @@ registerLiveEditPreview({
 });
 ```
 
-#### Advanced: Using Generated Type Definitions
-
-For full TypeScript intellisense with all your dependencies, you can generate a JSON file containing type definitions from `node_modules` and your local package:
-
-```js
-// scripts/generate-types.mjs
-import fs from 'fs';
-import path from 'path';
-
-const types = {};
-
-// Function to recursively read .d.ts files from a directory
-function readTypesFromDir(dir, prefix) {
-  const files = fs.readdirSync(dir, { withFileTypes: true });
-  for (const file of files) {
-    const fullPath = path.join(dir, file.name);
-    if (file.isDirectory() && file.name !== 'node_modules') {
-      readTypesFromDir(fullPath, prefix);
-    } else if (file.name.endsWith('.d.ts')) {
-      const content = fs.readFileSync(fullPath, 'utf8');
-      const relativePath = path.relative(dir, fullPath);
-      types[`${prefix}/${relativePath}`] = content;
-    }
-  }
-}
-
-// Add types from node_modules packages
-const packages = [
-  { name: 'my-library', path: 'node_modules/my-library' },
-  // Add more packages as needed
-];
-
-packages.forEach(pkg => {
-  if (fs.existsSync(pkg.path)) {
-    readTypesFromDir(pkg.path, `file:///node_modules/${pkg.name}`);
-  }
-});
-
-// Write to JSON file
-fs.writeFileSync('src/library-types.json', JSON.stringify(types, null, 2));
-```
-
-Then use the generated types in your preview:
+For full TypeScript intellisense with generated types, see the [Loading Types from Multiple Packages](#loading-types-from-multiple-packages) section. When using composition, pass the same types to both `registerLiveEditPreview()` and `setupMonaco()`:
 
 ```ts
 // .storybook/preview.ts
 import { registerLiveEditPreview, setupMonaco } from 'storybook-addon-code-editor';
 import libraryTypes from '../src/library-types.json';
+import * as MyLibrary from 'my-library';
 
 // Register for composition - types are sent to host automatically
 registerLiveEditPreview({
@@ -539,15 +510,12 @@ registerLiveEditPreview({
   typeDefinitions: libraryTypes as Record<string, string>,
 });
 
-// Also setup Monaco for local development
+// Setup Monaco for local development (same types)
 setupMonaco({
   onMonacoLoad: (monaco) => {
-    // Add type definitions to Monaco
     for (const [path, content] of Object.entries(libraryTypes)) {
       monaco.languages.typescript.typescriptDefaults.addExtraLib(content, path);
     }
-    
-    // Configure module resolution paths
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       ...monaco.languages.typescript.typescriptDefaults.getCompilerOptions(),
       paths: {
@@ -611,7 +579,7 @@ registerLiveEditPreview({
 
 ### Story-Specific Imports
 
-You can also define imports per-story using `makeLiveEditStory`. These are **merged** with globally registered imports, with story-specific imports taking precedence:
+You can define imports per-story using `makeLiveEditStory`. These merge with globally registered imports (story-specific takes precedence):
 
 ```ts
 // preview.ts - register common imports globally
@@ -630,17 +598,11 @@ makeLiveEditStory(ChartStory, {
 });
 ```
 
-This allows you to:
-- Keep common dependencies in `preview.ts` (smaller bundle per story)
-- Add heavy dependencies only to stories that need them
-- Override global imports for specific stories if needed
+### Limitations
 
-### Notes
-
-- Only the composed Storybook needs to register imports - the host gets them automatically.
-- Type definitions are optional but improve the editor experience.
-- Preview updates work in real-time via Storybook's channel API.
-- Story-specific imports are merged with global imports (story-specific takes precedence).
+- **Cross-origin only**: Composition works across different origins via `postMessage`. Same-origin composition uses Storybook's channel API.
+- **Host must have the addon installed**: The host Storybook needs `storybook-addon-code-editor` in its addons to show the editor panel.
+- **Type conflicts**: When multiple composed Storybooks provide types for the same package, the host's types take precedence if configured via `setupMonaco({ paths })`.
 
 <br />
 

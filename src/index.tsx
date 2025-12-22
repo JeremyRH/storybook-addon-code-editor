@@ -19,12 +19,21 @@ const globalImportsRegistry: Record<string, Record<string, unknown>> = {};
 // Type definitions registry for editor intellisense
 const typeDefinitionsRegistry: Record<string, string> = {};
 
+// Track if registerLiveEditPreview has been called to prevent duplicate setup
+let liveEditPreviewRegistered = false;
+
 /**
  * Register imports and optional type definitions for live code editing.
  * Call this in your preview.ts to make imports available for live editing.
  *
  * In composition mode, the type definitions will be sent to the host Storybook
  * so the editor can provide intellisense without the host needing any configuration.
+ *
+ * **Import Merge Behavior:**
+ * - Imports from `registerLiveEditPreview()` are available to ALL stories (global)
+ * - Imports from `makeLiveEditStory({ availableImports })` are story-specific
+ * - Story-specific imports take precedence over global imports
+ * - This allows you to override global imports for specific stories
  *
  * @example
  * // In .storybook/preview.ts
@@ -48,14 +57,18 @@ export function registerLiveEditPreview(config: {
   imports: Record<string, Record<string, unknown>>;
   typeDefinitions?: Record<string, string>;
 }) {
+  // Merge imports (allows multiple calls, but each key overwrites)
   Object.assign(globalImportsRegistry, config.imports);
 
   if (config.typeDefinitions) {
     Object.assign(typeDefinitionsRegistry, config.typeDefinitions);
   }
 
-  // Setup channel communication to send state to manager
-  setupPreviewChannelCommunication();
+  // Only setup channel communication once
+  if (!liveEditPreviewRegistered) {
+    liveEditPreviewRegistered = true;
+    setupPreviewChannelCommunication();
+  }
 }
 
 /**
@@ -143,8 +156,19 @@ function setupPreviewChannelCommunication() {
     // Send type definitions to parent window (for composition)
     // This allows the host manager to receive type definitions from composed Storybooks
     if (window.parent && window.parent !== window) {
-      // We're in an iframe - send type definitions to parent
+      // We're in an iframe - send type definitions to parent with retry logic
+      let retryCount = 0;
+      const maxRetries = 5;
+      const baseDelay = 100; // Start with 100ms
+
       const sendTypeDefinitions = () => {
+        if (Object.keys(typeDefinitionsRegistry).length === 0 && retryCount < maxRetries) {
+          // No type definitions yet, retry with exponential backoff
+          retryCount++;
+          setTimeout(sendTypeDefinitions, baseDelay * Math.pow(2, retryCount));
+          return;
+        }
+
         window.parent.postMessage(
           {
             type: EVENTS.PREVIEW_READY,
@@ -155,9 +179,15 @@ function setupPreviewChannelCommunication() {
         );
       };
 
-      // Send immediately and also after a short delay to ensure parent is ready
+      // Send immediately
       sendTypeDefinitions();
-      setTimeout(sendTypeDefinitions, 1000);
+
+      // Also listen for explicit requests from parent (more reliable than timing)
+      window.addEventListener('message', (event) => {
+        if (event.data?.type === 'storybook-addon-code-editor/request-types') {
+          sendTypeDefinitions();
+        }
+      });
     }
   }
 
@@ -248,6 +278,13 @@ type MinimalStory = MinimalStoryObj | (AnyFn & MinimalStoryObj);
 /**
  * Combined preview component that supports both local store updates and channel updates (for composition).
  * The preview frame handles all compilation - no imports needed in the manager.
+ *
+ * **Import Resolution Order (highest to lowest precedence):**
+ * 1. `state.availableImports` - From store updates (runtime changes)
+ * 2. `availableImports` prop - From `makeLiveEditStory({ availableImports })` (story-specific)
+ * 3. `globalImportsRegistry` - From `registerLiveEditPreview({ imports })` (global)
+ *
+ * This allows story-specific imports to override global imports.
  */
 function CombinedLivePreview({
   storeId,
@@ -318,6 +355,22 @@ function CombinedLivePreview({
 
 /**
  * Modifies a story to include a live code editor addon panel.
+ *
+ * @param story - The story object to modify
+ * @param options - Configuration for the live editor
+ * @param options.code - The initial code to display in the editor
+ * @param options.availableImports - Story-specific imports (merged with global imports from registerLiveEditPreview)
+ * @param options.modifyEditor - Callback to customize the Monaco editor instance
+ * @param options.defaultEditorOptions - Default Monaco editor options
+ *
+ * @example
+ * ```ts
+ * export const MyStory: Story = {};
+ * makeLiveEditStory(MyStory, {
+ *   code: myStoryCode,
+ *   availableImports: { 'heavy-lib': HeavyLib }, // Only this story gets heavy-lib
+ * });
+ * ```
  */
 export function makeLiveEditStory<T extends MinimalStory>(
   story: T,
