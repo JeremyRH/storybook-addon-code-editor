@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.1...v6.1.2) (2025-12-30)
+
+
+### Bug Fixes
+
+* add manager.js ([3fd4bb1](https://github.com/JeremyRH/storybook-addon-code-editor/commit/3fd4bb1a163fe05a62160d95a612334ff32730f5))
+
 ## [6.1.1](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.0...v6.1.1) (2025-12-15)
 
 
