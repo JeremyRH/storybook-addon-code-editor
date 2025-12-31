@@ -72,12 +72,21 @@ interface EditorState {
   editor?: Monaco.editor.IStandaloneCodeEditor;
   editorContainer?: HTMLDivElement;
   monaco?: typeof Monaco;
+  latestValue: string;
+  modifyEditorCalled?: boolean;
 }
 
 export default function Editor(props: EditorProps) {
-  const stateRef = React.useRef<EditorState>({ onInput: props.onInput }).current;
-  const [_, forceUpdate] = React.useReducer((n) => n + 1, 0);
+  const stateRef = React.useRef<EditorState>({
+    onInput: props.onInput,
+    latestValue: props.value,
+    modifyEditorCalled: false,
+  }).current;
+  const [monacoReady, setMonacoReady] = React.useState(false);
   let resolveContainer: (...args: any[]) => any = () => {};
+
+  // Always keep the latest value in the ref
+  stateRef.latestValue = props.value;
 
   React.useState(() => {
     const containerPromise = new Promise<HTMLDivElement>((resolve) => {
@@ -86,9 +95,10 @@ export default function Editor(props: EditorProps) {
 
     Promise.all([containerPromise, loadMonacoEditor()]).then(([editorContainer, monaco]) => {
       stateRef.monaco = monaco;
+      // Use the latest value from the ref, not the closure-captured props.value
       stateRef.editor = createEditor(
         monaco,
-        props.value,
+        stateRef.latestValue,
         editorContainer,
         props.defaultEditorOptions,
       );
@@ -100,7 +110,8 @@ export default function Editor(props: EditorProps) {
         }
       });
 
-      forceUpdate();
+      // Signal that Monaco is ready - this will trigger the modifyEditor effect
+      setMonacoReady(true);
     });
   });
 
@@ -114,11 +125,19 @@ export default function Editor(props: EditorProps) {
     }
   }, [props.value]);
 
+  // Call modifyEditor when Monaco is ready or when modifyEditor changes
   React.useEffect(() => {
-    if (stateRef.monaco && stateRef.editor) {
-      props.modifyEditor?.(stateRef.monaco, stateRef.editor);
+    console.log('[Editor] modifyEditor effect:', {
+      monacoReady,
+      hasMonaco: !!stateRef.monaco,
+      hasEditor: !!stateRef.editor,
+      hasModifyEditor: !!props.modifyEditor,
+    });
+    if (monacoReady && stateRef.monaco && stateRef.editor && props.modifyEditor) {
+      console.log('[Editor] Calling modifyEditor');
+      props.modifyEditor(stateRef.monaco, stateRef.editor);
     }
-  }, [stateRef.monaco, props.modifyEditor]);
+  }, [monacoReady, props.modifyEditor]);
 
   React.useEffect(() => {
     return () => {

@@ -6,26 +6,11 @@ const __filename = fileURLToPath(import.meta.url);
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  staticDirs: [
-    // monaco-editor needs static files to be available at runtime.
-    ...getCodeEditorStaticDirs(__filename),
-
-    // Extra static files can be added like below.
-    // getExtraStaticDir('monaco-editor/esm'),
-  ],
+  staticDirs: [...getCodeEditorStaticDirs(__filename)],
   addons: ['@storybook/addon-docs', 'storybook-addon-code-editor'],
   framework: {
     name: '@storybook/react-vite',
     options: {},
-  },
-  // Composition: embed another Storybook
-  // To test this, run the example-composed Storybook on port 6007:
-  // cd ../example-composed && npm run storybook:dev
-  refs: {
-    'composed-storybook': {
-      title: 'Composed Storybook',
-      url: 'http://localhost:6007',
-    },
   },
 };
 
