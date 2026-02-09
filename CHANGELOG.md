@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.3](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.2...v6.1.3) (2026-02-09)
+
+
+### Bug Fixes
+
+* update types to support exactOptionalPropertyTypes ([3bc0001](https://github.com/JeremyRH/storybook-addon-code-editor/commit/3bc00017101dd5009e02996e32ecd0bfd1ef8150)), closes [#87](https://github.com/JeremyRH/storybook-addon-code-editor/issues/87)
+
 ## [6.1.2](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.1...v6.1.2) (2025-12-30)
 
 
