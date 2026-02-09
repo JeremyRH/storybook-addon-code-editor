@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { EsModules, evalModule } from './evalModule';
 import { errorStyle } from './ErrorBoundary';
+import { EsModules, evalModule } from './evalModule';
 
 interface PreviewProps {
   availableImports: EsModules;
