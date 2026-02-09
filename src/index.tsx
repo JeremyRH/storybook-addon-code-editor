@@ -7,9 +7,9 @@ export { setupMonaco } from './Editor/setupMonaco';
 
 export interface StoryState {
   code: string;
-  availableImports?: Record<string, Record<string, unknown>>;
-  modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'];
-  defaultEditorOptions?: EditorOptions;
+  availableImports?: Record<string, Record<string, unknown>> | undefined;
+  modifyEditor?: React.ComponentProps<typeof Editor>['modifyEditor'] | undefined;
+  defaultEditorOptions?: EditorOptions | undefined;
 }
 
 const store = createStore<StoryState>();
@@ -46,19 +46,25 @@ type AnyFn = (...args: any[]) => unknown;
 // Only define the types from Storybook that are used in makeLiveEditStory.
 // This allows us to support multiple versions of Storybook.
 type MinimalStoryObj = {
-  tags?: string[];
-  parameters?: {
-    liveCodeEditor?: {
-      disable: boolean;
-      id: string;
-    };
-    docs?: {
-      source?: Record<PropertyKey, unknown>;
-      [k: string]: any;
-    };
-    [k: string]: any;
-  };
-  render?: AnyFn;
+  tags?: string[] | undefined;
+  parameters?:
+    | {
+        liveCodeEditor?:
+          | {
+              disable: boolean;
+              id: string;
+            }
+          | undefined;
+        docs?:
+          | {
+              source?: Record<PropertyKey, unknown> | undefined;
+              [k: string]: any;
+            }
+          | undefined;
+        [k: string]: any;
+      }
+    | undefined;
+  render?: AnyFn | undefined;
   [k: string]: any;
 };
 
@@ -104,9 +110,11 @@ export function Playground({
   Container,
   ...editorProps
 }: Partial<StoryState> & {
-  height?: string;
-  id?: string;
-  Container?: React.ComponentType<{ editor: React.ReactNode; preview: React.ReactNode }>;
+  height?: string | undefined;
+  id?: string | undefined;
+  Container?:
+    | React.ComponentType<{ editor: React.ReactNode; preview: React.ReactNode }>
+    | undefined;
 }) {
   let initialCode = code ?? '';
   if (id !== undefined) {

@@ -45,7 +45,7 @@ function createEditor(
   monaco: typeof Monaco,
   code: string,
   container: HTMLElement,
-  defaultEditorOptions?: EditorOptions,
+  defaultEditorOptions?: EditorOptions | undefined,
 ) {
   const uri = monaco.Uri.parse(`file:///index${fileCount++}.tsx`);
 
@@ -62,16 +62,18 @@ function createEditor(
 interface EditorProps {
   onInput: (value: string) => any;
   value: string;
-  modifyEditor?: (monaco: typeof Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any;
-  parentSize?: string;
-  defaultEditorOptions?: EditorOptions;
+  modifyEditor?:
+    | ((monaco: typeof Monaco, editor: Monaco.editor.IStandaloneCodeEditor) => any)
+    | undefined;
+  parentSize?: string | undefined;
+  defaultEditorOptions?: EditorOptions | undefined;
 }
 
 interface EditorState {
   onInput: EditorProps['onInput'];
-  editor?: Monaco.editor.IStandaloneCodeEditor;
-  editorContainer?: HTMLDivElement;
-  monaco?: typeof Monaco;
+  editor?: Monaco.editor.IStandaloneCodeEditor | undefined;
+  editorContainer?: HTMLDivElement | undefined;
+  monaco?: typeof Monaco | undefined;
 }
 
 export default function Editor(props: EditorProps) {

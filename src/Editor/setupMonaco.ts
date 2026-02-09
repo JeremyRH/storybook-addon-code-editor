@@ -2,8 +2,8 @@ import type * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { createStore } from '../createStore';
 
 interface MonacoSetup {
-  monacoEnvironment?: Monaco.Environment;
-  onMonacoLoad?: (monaco: typeof Monaco) => any;
+  monacoEnvironment?: Monaco.Environment | undefined;
+  onMonacoLoad?: ((monaco: typeof Monaco) => any) | undefined;
 }
 
 const store = createStore<MonacoSetup>();
