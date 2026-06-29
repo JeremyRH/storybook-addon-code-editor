@@ -9,18 +9,24 @@ interface PreviewProps {
 }
 
 export default function Preview({ availableImports, code, componentProps }: PreviewProps) {
-  let DefaultExport: any;
-
-  try {
-    DefaultExport = code ? evalModule(code, availableImports).default : undefined;
-    const isObject = DefaultExport && typeof DefaultExport === 'object';
-    const isFunction = typeof DefaultExport === 'function';
-    if (!isObject && !isFunction) {
-      throw new TypeError('Default export is not a React component');
+  // Memoize on `code` only — intentionally excluding `availableImports` because
+  // callers (e.g. LivePreview) spread a fresh object on every render. Including it
+  // would bust the memo every render and re-introduce the remount bug.
+  const DefaultExport = React.useMemo<React.ComponentType<any>>(() => {
+    try {
+      const exp = code ? evalModule(code, availableImports).default : undefined;
+      const isObject = exp && typeof exp === 'object';
+      const isFunction = typeof exp === 'function';
+      if (!isObject && !isFunction) {
+        throw new TypeError('Default export is not a React component');
+      }
+      // Cast is safe: runtime guards above ensure exp is an object or function,
+      // which are the only valid React component types (class or function).
+      return exp as React.ComponentType<any>;
+    } catch (error) {
+      return () => <pre style={errorStyle}>{String(error)}</pre>;
     }
-  } catch (error) {
-    return <pre style={errorStyle}>{String(error)}</pre>;
-  }
+  }, [code]); // Intentionally omits `availableImports` — see block comment above.
 
   return <DefaultExport {...componentProps} />;
 }
