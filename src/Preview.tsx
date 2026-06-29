@@ -20,7 +20,9 @@ export default function Preview({ availableImports, code, componentProps }: Prev
       if (!isObject && !isFunction) {
         throw new TypeError('Default export is not a React component');
       }
-      return exp;
+      // Cast is safe: runtime guards above ensure exp is an object or function,
+      // which are the only valid React component types (class or function).
+      return exp as React.ComponentType<any>;
     } catch (error) {
       return () => <pre style={errorStyle}>{String(error)}</pre>;
     }
