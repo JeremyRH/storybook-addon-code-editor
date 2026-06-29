@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { afterEach, describe, expect, test } from 'vitest';
 import { createStore } from './createStore';
@@ -145,6 +145,45 @@ describe('makeLiveEditStory', () => {
     });
 
     await screen.findByText('Hello');
+  });
+
+  test('preserves component state when re-rendered without code change', async () => {
+    const Story = {} as StorybookStory;
+    makeLiveEditStory(Story, {
+      code: 'export default () => { const [n, setN] = React.useState(0); return <button onClick={() => setN(n + 1)}>{n}</button>; }',
+    });
+
+    const { rerender } = render(Story.render({ 'data-initial': true }));
+
+    await screen.findByText('0');
+    fireEvent.click(screen.getByRole('button'));
+    await screen.findByText('1');
+
+    // Re-render with different props (simulates globals/args change) — code is unchanged.
+    rerender(Story.render({ 'data-initial': false }));
+
+    // State should be preserved; component must NOT have remounted.
+    await screen.findByText('1');
+  });
+
+  test('resets component state when code changes', async () => {
+    const Story = {} as StorybookStory;
+    makeLiveEditStory(Story, {
+      code: 'export default () => { const [n, setN] = React.useState(0); return <button onClick={() => setN(n + 1)}>{n}</button>; }',
+    });
+
+    render(Story.render());
+
+    await screen.findByText('0');
+    fireEvent.click(screen.getByRole('button'));
+    await screen.findByText('1');
+
+    // Update the code — this should cause a remount and reset state.
+    createStore<any>().setValue(Story.parameters.liveCodeEditor.id, {
+      code: 'export default () => { const [n, setN] = React.useState(0); return <button onClick={() => setN(n + 2)}>{n}</button>; }',
+    });
+
+    await screen.findByText('0');
   });
 
   test('recovers from runtime errors in the default export function', async () => {
