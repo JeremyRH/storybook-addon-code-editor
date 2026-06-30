@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.4](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.3...v6.1.4) (2026-06-30)
+
+
+### Bug Fixes
+
+* memoize DefaultExport in Preview to preserve component state across re-renders ([b536c7b](https://github.com/JeremyRH/storybook-addon-code-editor/commit/b536c7b5d101c2d6065e629458fca8acd1067973))
+
 ## [6.1.3](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.2...v6.1.3) (2026-02-09)
 
 
