@@ -3,7 +3,7 @@ import * as React from 'react';
 import { afterEach, describe, expect, test } from 'vitest';
 import { createStore } from './createStore';
 import { getCodeEditorStaticDirs, getExtraStaticDir } from './getStaticDirs';
-import { makeLiveEditStory, Playground, setupMonaco, type StoryState } from './index';
+import { makeLiveEditStory, setupMonaco, type StoryState } from './index';
 
 type StorybookStory = {
   render: (...args: any[]) => React.ReactNode;
@@ -27,6 +27,23 @@ afterEach(() => {
 describe('makeLiveEditStory', () => {
   test('is a function', () => {
     expect(typeof makeLiveEditStory).toBe('function');
+  });
+
+  test('generates an id when none is provided', () => {
+    const Story = {} as StorybookStory;
+    makeLiveEditStory(Story, { code: '' });
+
+    expect(Story.parameters.liveCodeEditor.id).toMatch(/^id_/);
+  });
+
+  test('uses the provided id as the store key', () => {
+    const Story = {} as StorybookStory;
+    makeLiveEditStory(Story, { code: 'export default () => null', id: 'my-shared-id' });
+
+    expect(Story.parameters.liveCodeEditor.id).toBe('my-shared-id');
+    expect(createStore<StoryState>().getValue('my-shared-id')?.code).toBe(
+      'export default () => null',
+    );
   });
 
   test('renders error', async () => {
@@ -204,12 +221,6 @@ describe('makeLiveEditStory', () => {
     });
 
     await screen.findByText('Hello');
-  });
-});
-
-describe('Playground', () => {
-  test('is a function', () => {
-    expect(typeof Playground).toBe('function');
   });
 });
 

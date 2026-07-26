@@ -12,6 +12,15 @@ export interface StoryState {
   defaultEditorOptions?: EditorOptions | undefined;
 }
 
+export interface LiveEditStoryOptions extends StoryState {
+  /**
+   * Stable key for this story's shared code state. Pass the same `id` to
+   * `Playground` to drive the story from an editor rendered elsewhere, such as
+   * an MDX page. Defaults to a generated id.
+   */
+  id?: string | undefined;
+}
+
 const store = createStore<StoryState>();
 const hasReactRegex = /import\s+(\*\s+as\s+)?React[,\s]/;
 const noop = () => {};
@@ -76,10 +85,14 @@ type MinimalStory = MinimalStoryObj | (AnyFn & MinimalStoryObj);
  */
 export function makeLiveEditStory<T extends MinimalStory>(
   story: T,
-  { code, availableImports, modifyEditor, defaultEditorOptions }: StoryState,
+  {
+    code,
+    availableImports,
+    modifyEditor,
+    defaultEditorOptions,
+    id = `id_${Math.random()}`,
+  }: LiveEditStoryOptions,
 ): void {
-  const id = `id_${Math.random()}`;
-
   store.setValue(id, { code, availableImports, modifyEditor, defaultEditorOptions });
 
   story.parameters = {
@@ -97,18 +110,17 @@ export function makeLiveEditStory<T extends MinimalStory>(
   story.render = (props: any) => <LivePreview storyId={id} storyArgs={props} />;
 }
 
-const savedCode: Record<PropertyKey, string> = {};
-
 /**
  * React component containing a live code editor and preview.
  */
 export function Playground({
   availableImports,
   code,
+  defaultEditorOptions,
   height = '200px',
   id,
+  modifyEditor,
   Container,
-  ...editorProps
 }: Partial<StoryState> & {
   height?: string | undefined;
   id?: string | undefined;
@@ -116,26 +128,43 @@ export function Playground({
     | React.ComponentType<{ editor: React.ReactNode; preview: React.ReactNode }>
     | undefined;
 }) {
-  let initialCode = code ?? '';
-  if (id !== undefined) {
-    savedCode[id] ??= initialCode;
-    initialCode = savedCode[id];
-  }
-  const [currentCode, setCurrentCode] = React.useState(initialCode);
+  // When `id` is set, the shared store owns the code. This keeps the editor in
+  // sync with every other consumer of the same id: the addon panel, other
+  // `Playground`s, and stories created by `makeLiveEditStory`.
+  const sharedState = id === undefined ? undefined : store.getValue(id);
+  const [currentCode, setCurrentCode] = React.useState(sharedState?.code ?? code ?? '');
   const errorBoundaryResetRef = React.useRef(noop);
   const fullCode = hasReactRegex.test(currentCode)
     ? currentCode
     : "import * as React from 'react';" + currentCode;
 
+  React.useEffect(() => {
+    if (id === undefined) {
+      return;
+    }
+    return store.onChange(id, (newState) => {
+      setCurrentCode(newState.code);
+      errorBoundaryResetRef.current();
+    });
+  }, [id]);
+
   const editor = (
     <Editor
-      {...editorProps}
+      defaultEditorOptions={defaultEditorOptions ?? sharedState?.defaultEditorOptions}
+      modifyEditor={modifyEditor ?? sharedState?.modifyEditor}
       onInput={(newCode) => {
-        if (id !== undefined) {
-          savedCode[id] = newCode;
-        }
         setCurrentCode(newCode);
         errorBoundaryResetRef.current();
+
+        if (id !== undefined) {
+          const latestState = store.getValue(id);
+          store.setValue(
+            id,
+            latestState
+              ? { ...latestState, code: newCode }
+              : { availableImports, code: newCode, defaultEditorOptions, modifyEditor },
+          );
+        }
       }}
       value={currentCode}
     />
@@ -143,7 +172,10 @@ export function Playground({
 
   const preview = (
     <ErrorBoundary resetRef={errorBoundaryResetRef}>
-      <Preview availableImports={{ react: React, ...availableImports }} code={fullCode} />
+      <Preview
+        availableImports={{ react: React, ...(availableImports ?? sharedState?.availableImports) }}
+        code={fullCode}
+      />
     </ErrorBoundary>
   );
 
