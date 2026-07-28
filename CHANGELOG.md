@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.2.0](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.4...v6.2.0) (2026-07-28)
+
+
+### Features
+
+* link Playground and makeLiveEditStory through a shared id ([bb84ca6](https://github.com/JeremyRH/storybook-addon-code-editor/commit/bb84ca6cbd92be7b7829ce26ff49221152e99e6d)), closes [#95](https://github.com/JeremyRH/storybook-addon-code-editor/issues/95)
+
 ## [6.1.4](https://github.com/JeremyRH/storybook-addon-code-editor/compare/v6.1.3...v6.1.4) (2026-06-30)
 
 
