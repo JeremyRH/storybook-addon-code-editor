@@ -77,8 +77,38 @@ type MinimalStoryObj = {
   [k: string]: any;
 };
 
-// A story can be a function or an object.
-type MinimalStory = MinimalStoryObj | (AnyFn & MinimalStoryObj);
+// CSF Next stories created by `meta.story()` keep their annotations in `input`.
+type MinimalFactoryStory = {
+  readonly _tag: 'Story';
+  input: MinimalStoryObj;
+};
+
+// A story can be a function, an object, or a CSF Next factory story.
+type MinimalStory = MinimalStoryObj | (AnyFn & MinimalStoryObj) | MinimalFactoryStory;
+
+function isFactoryStory(story: MinimalStory): story is MinimalFactoryStory {
+  return story._tag === 'Story' && typeof story.input === 'object' && story.input !== null;
+}
+
+function liveEditAnnotations(
+  parameters: MinimalStoryObj['parameters'],
+  id: string,
+): Required<Pick<MinimalStoryObj, 'parameters' | 'render'>> {
+  return {
+    parameters: {
+      ...parameters,
+      liveCodeEditor: { disable: false, id },
+      docs: {
+        ...parameters?.docs,
+        source: {
+          ...parameters?.docs?.source,
+          transform: (code: string) => store.getValue(id)?.code ?? code,
+        },
+      },
+    },
+    render: (props: any) => <LivePreview storyId={id} storyArgs={props} />,
+  };
+}
 
 /**
  * Modifies a story to include a live code editor addon panel.
@@ -95,19 +125,9 @@ export function makeLiveEditStory<T extends MinimalStory>(
 ): void {
   store.setValue(id, { code, availableImports, modifyEditor, defaultEditorOptions });
 
-  story.parameters = {
-    ...story.parameters,
-    liveCodeEditor: { disable: false, id },
-    docs: {
-      ...story.parameters?.docs,
-      source: {
-        ...story.parameters?.docs?.source,
-        transform: (code: string) => store.getValue(id)?.code ?? code,
-      },
-    },
-  };
-
-  story.render = (props: any) => <LivePreview storyId={id} storyArgs={props} />;
+  const target: MinimalStory = story;
+  const annotations = isFactoryStory(target) ? target.input : target;
+  Object.assign(annotations, liveEditAnnotations(annotations.parameters, id));
 }
 
 /**

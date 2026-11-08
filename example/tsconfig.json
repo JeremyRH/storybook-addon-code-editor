@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -11,7 +10,7 @@
     "moduleResolution": "Bundler",
     "noEmitOnError": true,
     "paths": {
-      "example-library": ["src/index"]
+      "example-library": ["./src/index"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,

@@ -1,10 +1,10 @@
-import type { StorybookConfig } from '@storybook/react-vite';
+import { defineMain } from '@storybook/react-vite/node';
 import { fileURLToPath } from 'node:url';
 import { getCodeEditorStaticDirs } from 'storybook-addon-code-editor/getStaticDirs';
 
 const __filename = fileURLToPath(import.meta.url);
 
-const config: StorybookConfig = {
+export default defineMain({
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
   staticDirs: [
     // monaco-editor needs static files to be available at runtime.
@@ -18,6 +18,4 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
-};
-
-export default config;
+});

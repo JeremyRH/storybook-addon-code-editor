@@ -45,7 +45,7 @@
   "peerDependencies": {
     "@types/react": "17.x.x || 18.x.x || 19.x.x",
     "react": "17.x.x || 18.x.x || 19.x.x",
-    "storybook": "10.x.x"
+    "storybook": "^11.0.0-0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
@@ -53,7 +53,7 @@
     }
   },
   "devDependencies": {
-    "@storybook/react-vite": "^10.0.5",
+    "@storybook/react-vite": "^11.0.0-beta.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^24.10.0",
@@ -63,9 +63,9 @@
     "prettier": "^3.5.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "storybook": "^10.0.5",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.5",
+    "storybook": "^11.0.0-beta.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
     "vitest": "^3.1.1"
   },
   "storybook": {

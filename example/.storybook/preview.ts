@@ -1,6 +1,6 @@
-import type { Preview } from '@storybook/react-vite';
+import addonDocs from '@storybook/addon-docs';
+import { definePreview } from '@storybook/react-vite';
 import { setupMonaco } from 'storybook-addon-code-editor';
-// @ts-expect-error: importing raw types file
 import ExampleLibraryTypes from '../dist/types.d.ts?raw';
 
 // When customizing monaco-editor, setupMonaco needs to be called before any story loads.
@@ -57,7 +57,8 @@ setupMonaco({
   },
 });
 
-const preview: Preview = {
+export default definePreview({
+  addons: [addonDocs()],
   parameters: {
     controls: {
       matchers: {
@@ -69,6 +70,4 @@ const preview: Preview = {
       disable: true,
     },
   },
-};
-
-export default preview;
+});
