@@ -7,7 +7,6 @@ import './playgroundExample.css';
   title="MDX Page"
   parameters={{
     viewMode: 'docs',
-    previewTabs: { canvas: { hidden: true } },
   }}
 />
 
@@ -22,33 +21,34 @@ To start using storybook-addon-code-editor, [visit the GitHub page](https://gith
 
 {(() => {
   const code = `
-import './playgroundExample.css';
+  import './playgroundExample.css';
 
-const blockColors = ['#c7729a', '#5dbeb4', '#85bd6e', '#b5bd6e', '#bd756e'];
+  const blockColors = ['#c7729a', '#5dbeb4', '#85bd6e', '#b5bd6e', '#bd756e'];
 
-function getRandomBlockColor() {
-  const randIndex = Math.floor(Math.random() * blockColors.length);
-  return blockColors[randIndex];
-}
+  function getRandomBlockColor() {
+    const randIndex = Math.floor(Math.random() * blockColors.length);
+    return blockColors[randIndex];
+  }
 
-export default () => {
-  const [blocks, setBlocks] = React.useState(
-    [{ color: getRandomBlockColor() }]
-  );
-  const addBlock = () =>
-    setBlocks((b) => [...b, { color: getRandomBlockColor() }]);
+  export default () => {
+    const [blocks, setBlocks] = React.useState(
+      [{ color: getRandomBlockColor() }]
+    );
+    const addBlock = () =>
+      setBlocks((b) => [...b, { color: getRandomBlockColor() }]);
 
-  return (
-    <div>
-      <div className="block-container">
-        {blocks.map((block, i) => (
-          <div key={i} className="block" style={{ background: block.color }} />
-        ))}
+    return (
+      <div>
+        <div className="block-container">
+          {blocks.map((block, i) => (
+            <div key={i} className="block" style={{ background: block.color }} />
+          ))}
+        </div>
+        <button className="button" onClick={addBlock}>+ Add Block</button>
       </div>
-      <button className="button" onClick={addBlock}>+ Add Block</button>
-    </div>
-  );
-}`;
+    );
+  }
+  `;
 
   const Container = (props) => (
     <div className="sb-unstyled" style={{ background: '#efefef', borderRadius: '8px', overflow: 'hidden' }}>

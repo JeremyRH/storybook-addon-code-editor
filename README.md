@@ -13,6 +13,13 @@ Think of it like a lightweight [CodeSandbox](https://codesandbox.io), directly i
 
 It uses [Monaco Editor](https://github.com/microsoft/monaco-editor) (VS Code for the browser) for an excellent TypeScript editing experience.
 
+## Compatibility
+
+| storybook-addon-code-editor | Storybook |
+| --------------------------- | --------- |
+| 7.x                         | 11.x      |
+| 6.x                         | 10.x      |
+
 ## Get started
 
 1. Install as a dev dependency:
@@ -166,6 +173,29 @@ type Story = StoryObj<typeof meta>;
 export const MyStory: Story = {
   // Story config
 };
+
+makeLiveEditStory(MyStory, {
+  availableImports: { 'my-library': MyLibrary },
+  code: storyCode,
+});
+```
+
+With [CSF Next](https://storybook.js.org/docs/api/csf/csf-next), pass the story returned by `meta.story()`:
+
+```ts
+// MyComponent.stories.ts
+import { makeLiveEditStory } from 'storybook-addon-code-editor';
+import preview from '../.storybook/preview';
+import * as MyLibrary from './index';
+import storyCode from './MyStory.source.tsx?raw';
+
+const meta = preview.meta({
+  component: MyLibrary.MyComponent,
+});
+
+export const MyStory = meta.story({
+  // Story config
+});
 
 makeLiveEditStory(MyStory, {
   availableImports: { 'my-library': MyLibrary },

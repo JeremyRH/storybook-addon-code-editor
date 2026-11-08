@@ -46,6 +46,28 @@ describe('makeLiveEditStory', () => {
     );
   });
 
+  test('modifies the input of CSF Next factory stories', () => {
+    const Story = { _tag: 'Story', input: { parameters: { layout: 'centered' } } } as const;
+    makeLiveEditStory(Story, { code: 'export default () => <div>Factory</div>', id: 'factory' });
+
+    const input = Story.input as unknown as StorybookStory;
+    expect(input.parameters).toMatchObject({
+      layout: 'centered',
+      liveCodeEditor: { disable: false, id: 'factory' },
+    });
+    expect(Story).not.toHaveProperty('parameters');
+    expect(Story).not.toHaveProperty('render');
+  });
+
+  test('renders CSF Next factory stories', async () => {
+    const Story = { _tag: 'Story', input: {} } as const;
+    makeLiveEditStory(Story, { code: 'export default () => <div>Factory render</div>' });
+
+    render((Story.input as unknown as StorybookStory).render());
+
+    await screen.findByText('Factory render');
+  });
+
   test('renders error', async () => {
     const Story = {} as StorybookStory;
     makeLiveEditStory(Story, { code: '' });

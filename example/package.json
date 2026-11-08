@@ -10,16 +10,16 @@
     "react": "17.x.x || 18.x.x || 19.x.x"
   },
   "devDependencies": {
-    "@storybook/addon-docs": "^10.0.5",
-    "@storybook/react-vite": "^10.0.5",
+    "@storybook/addon-docs": "^11.0.0-beta.0",
+    "@storybook/react-vite": "^11.0.0-beta.0",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^5.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "storybook": "^10.0.5",
+    "storybook": "^11.0.0-beta.0",
     "storybook-addon-code-editor": "file:../storybook-addon-code-editor-0.0.0.tgz",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.5"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
   }
 }

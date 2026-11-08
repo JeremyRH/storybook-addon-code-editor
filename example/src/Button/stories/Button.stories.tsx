@@ -1,27 +1,23 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
 import { makeLiveEditStory } from 'storybook-addon-code-editor';
+import preview from '../../../.storybook/preview';
 import * as ExampleLibrary from '../../index';
 import ButtonJsSource from './editableStory.source.js?raw';
 import ButtonTsSource from './editableStory.source.tsx?raw';
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
-const meta = {
+// More on how to set up stories at: https://storybook.js.org/docs/api/csf/csf-next
+const meta = preview.meta({
   title: 'Stories/Button',
   component: ExampleLibrary.Button,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs', 'typescript'],
-} satisfies Meta<typeof ExampleLibrary.Button>;
-
-export default meta;
-
-type Story = StoryObj<typeof meta>;
+});
 
 // Stories declared as normal.
-export const EditableStoryJSSource: Story = {
+export const EditableStoryJSSource = meta.story({
   tags: ['!typescript'],
-};
+});
 
 // Modifies the story to add a live code editor panel.
 makeLiveEditStory(EditableStoryJSSource, {
@@ -35,7 +31,7 @@ makeLiveEditStory(EditableStoryJSSource, {
   },
 });
 
-export const EditableStoryTSSource: Story = {};
+export const EditableStoryTSSource = meta.story();
 
 makeLiveEditStory(EditableStoryTSSource, {
   availableImports: { 'example-library': ExampleLibrary },
@@ -49,12 +45,12 @@ makeLiveEditStory(EditableStoryTSSource, {
   },
 });
 
-export const EditableStoryWithControls: Story = {
+export const EditableStoryWithControls = meta.story({
   args: {
     as: 'link',
     children: 'Set this text in the controls tab',
   },
-};
+});
 
 makeLiveEditStory(EditableStoryWithControls, {
   availableImports: { 'example-library': ExampleLibrary },
@@ -75,9 +71,9 @@ makeLiveEditStory(EditableStoryWithControls, {
   },
 });
 
-export const nonEditableStoryArgs: Story = {
+export const nonEditableStoryArgs = meta.story({
   args: {
     children: 'Use the controls tab to edit me',
   },
   tags: ['!typescript'],
-};
+});
